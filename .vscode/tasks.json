@@ -34,6 +34,18 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "build-proto-editor",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Content.ProtoEditor/Content.ProtoEditor.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:'ForceNoAlign;NoSummary'"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "test",
             "command": "dotnet",
             "type": "shell",

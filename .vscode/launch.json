@@ -45,6 +45,7 @@
             "name": "ProtoEditor",
             "type": "coreclr",
             "request": "launch",
+            "preLaunchTask": "build-proto-editor",
             "program": "${workspaceFolder}/bin/Content.ProtoEditor/Content.ProtoEditor",
             "args": [],
             "console": "internalConsole",
