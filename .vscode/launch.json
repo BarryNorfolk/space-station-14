@@ -40,6 +40,15 @@
             "cwd": "${workspaceFolder}/Content.YAMLLinter",
             "console": "internalConsole",
             "stopAtEntry": false
+        },
+        {
+            "name": "ProtoEditor",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/Content.ProtoEditor/Content.ProtoEditor",
+            "args": [],
+            "console": "internalConsole",
+            "stopAtEntry": false
         }
     ],
     "compounds": [
