@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:Content.ProtoEditor.Views"
         xmlns:vm="using:Content.ProtoEditor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,12 +10,16 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Content.ProtoEditor">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+    <DockPanel LastChildFill="True">
+        <Border
+            Height="30"
+            BorderThickness="1"
+            BorderBrush="Black"
+            DockPanel.Dock="Bottom"
+            x:Name="footer">
+            <TextBlock Text="{Binding State}" />
+        </Border>
+        <views:PrototypeListView DockPanel.Dock="Left" />
+        <views:PrototypeComponentView />
+    </DockPanel>
 </Window>
