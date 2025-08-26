@@ -1,16 +1,41 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Content.ProtoEditor.ViewModels;
 using Content.ProtoEditor.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Content.ProtoEditor.Services;
+using Content.IntegrationTests;
 
 namespace Content.ProtoEditor;
 
-public partial class App : Application
+public sealed partial class App : Application
 {
+    public ServiceProvider Services { get; private set; }
+
+    public App()
+    {
+        PoolManager.Startup();
+
+        // Set up Dependency Injection
+        var collection = new ServiceCollection();
+        collection.AddSingleton<AssemblyProvider>();
+        collection.AddSingleton<PrototypeProvider>();
+
+        collection.AddSingleton<MainWindowViewModel>();
+        collection.AddSingleton<PrototypeListViewModel>();
+        collection.AddSingleton<PrototypeComponentViewModel>();
+
+        Services = collection.BuildServiceProvider();
+    }
+
+    ~App()
+    {
+        PoolManager.Shutdown();
+    }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -20,12 +45,12 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
+            // Avoid duplicate validations from both Avalonia and the CommunityToolkit.
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = Services.GetRequiredService<MainWindowViewModel>()
             };
         }
 
