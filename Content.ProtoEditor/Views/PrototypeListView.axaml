@@ -1,0 +1,42 @@
+<UserControl  xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vm="using:Content.ProtoEditor.ViewModels"
+              x:Class="Content.ProtoEditor.Views.PrototypeListView"
+              x:DataType="vm:PrototypeListViewModel" >
+
+  <Design.DataContext>
+    <vm:PrototypeListViewModel />
+  </Design.DataContext>
+
+  <Border BorderThickness="1" BorderBrush="Black" x:Name="protoList">
+      <Grid>
+          <Grid.RowDefinitions>
+              <RowDefinition Height="25" />
+              <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Row="0">
+              <TextBox
+                  Width="100"
+                  Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
+                  Watermark="Filter..."
+                  Margin="5 0 5 0" />
+              <ComboBox
+                  ItemsSource="{Binding Kinds}"
+                  Width="200"
+                  SelectedItem="{Binding ListFilterKind, Mode=TwoWay}"
+                  DisplayMemberBinding="{Binding ShortName}"/>
+          </StackPanel>
+          <ListBox
+              Grid.Row="1"
+              Width="500"
+              ItemsSource="{Binding PrototypeViewModels}"
+              SelectedItem="{Binding SelectedPrototype, Mode=TwoWay}">
+              <ListBox.ItemTemplate>
+                  <DataTemplate DataType="vm:PrototypeViewModel">
+                      <TextBlock Text="{Binding Id}" Padding="0 5 0 5" />
+                  </DataTemplate>
+              </ListBox.ItemTemplate>
+          </ListBox>
+      </Grid>
+  </Border>
+</UserControl>
