@@ -1,0 +1,17 @@
+<UserControl  xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vm="using:Content.ProtoEditor.ViewModels"
+              x:Class="Content.ProtoEditor.Views.PrototypeComponentView"
+              x:DataType="vm:PrototypeComponentViewModel" >
+
+  <Design.DataContext>
+    <vm:PrototypeComponentViewModel />
+  </Design.DataContext>
+
+  <Border BorderThickness="1" BorderBrush="Black" x:Name="protoList">
+    <StackPanel Orientation="Vertical" >
+      <TextBlock Text="{Binding SelectedPrototype}" />
+      <TextBlock Text="{Binding InfoText}" />
+    </StackPanel>
+  </Border>
+</UserControl>
