@@ -1,8 +1,10 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
+using Content.ProtoEditor.ViewModels.Properties;
 using ReactiveUI;
 using Robust.Shared.Utility;
 
@@ -15,11 +17,16 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     /// </summary>
     private readonly PrototypeProvider _prototypeProvider;
 
+    /// <summary>
+    /// Stored reference to the PrototypeManager provided by the ProtoEditor.
+    /// </summary>
+    private readonly PropertyViewModelFactory _viewModelFactory;
+
+
     [ObservableProperty]
     private string _selectedPrototype = "none";
 
-    [ObservableProperty]
-    private string _infoText = "";
+    public ObservableCollection<PropertyViewModel> Properties { get; } = [];
 
     /// <summary>
     /// Task for handling Initialization of this model view.
@@ -27,9 +34,10 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     /// </summary>
     public Task Initialization { get; private set; }
 
-    public PrototypeComponentViewModel(PrototypeProvider prototypeProvider)
+    public PrototypeComponentViewModel(PrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
     {
         _prototypeProvider = prototypeProvider;
+        _viewModelFactory = viewModelFactory;
 
         MessageBus.Current.Listen<PrototypeSelectedMessage>()
             .Subscribe(x => OnPrototypeSelected(x.Prototype));
@@ -39,21 +47,17 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
     private void OnPrototypeSelected(PrototypeViewModel? prototype)
     {
-        InfoText = "";
+        Properties.Clear();
         if (prototype == null)
             return;
 
         /*
             Show all the properties of the particular thing.
             TODO:
-                - Visualisers for each available "Type" that we know about
-                    I.e. String shows text box, boolean shows checkbox, etc.
-                - Learn how to use DataField versus the actual InComponent name.
-                    I.e. Not sure we want to show "SetName" when it's actually "Name".
+            - Consider Ignored properties per kind, things like Name which clash with `SetName` (which has a datafield for 'name')
         */
 
         SelectedPrototype = prototype.Id;
-        InfoText = "-- Properties --\n";
         foreach (var property in prototype.Kind.GetAllProperties())
         {
             if (!property.IsBasePropertyDefinition())
@@ -61,7 +65,20 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
                 continue;
             }
 
-            InfoText += $"  ({PrettyPrint.PrintUserFacingTypeShort(property.PropertyType, 2)}) {property.Name} => {property.GetValue(prototype.Instance)}\n";
+            Properties.Add(_viewModelFactory.CreateFromProperty(property, prototype.Instance));
+        }
+
+        foreach (var field in prototype.Kind.GetAllFields())
+        {
+            if (field.IsBackingField())
+            {
+                /*
+                    TODO: Determine if this is correct, do we really want to drop all the backing fields
+                    from being shown? I'll have to research a bit more.
+                */
+                continue;
+            }
+            Properties.Add(_viewModelFactory.CreateFromField(field, prototype.Instance));
         }
     }
 
