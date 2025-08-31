@@ -8,6 +8,7 @@ using Content.ProtoEditor.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Content.ProtoEditor.Services;
 using Content.IntegrationTests;
+using Content.ProtoEditor.ViewModels.Properties;
 
 namespace Content.ProtoEditor;
 
@@ -23,6 +24,7 @@ public sealed partial class App : Application
         var collection = new ServiceCollection();
         collection.AddSingleton<AssemblyProvider>();
         collection.AddSingleton<PrototypeProvider>();
+        collection.AddSingleton<PropertyViewModelFactory>();
 
         collection.AddSingleton<MainWindowViewModel>();
         collection.AddSingleton<PrototypeListViewModel>();
