@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using YamlDotNet.Core.Tokens;
 
 namespace Content.ProtoEditor.ViewModels.Properties;
 
