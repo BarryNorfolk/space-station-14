@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Robust.Shared.Prototypes;
 
 namespace Content.ProtoEditor.ViewModels.Properties;
 
@@ -11,12 +13,12 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 /// <summary>
 /// Special view model for handling arrays of properties for view models.
 /// </summary>
-/// <param name="name">Name of this array property.</param>
+/// <param name="info">Member information for the prototype.</param>
 /// <param name="elementType">The type of the elements within this array.</param>
 /// <param name="value">Initial array values for this property.</param>
 /// <param name="onAddItemFunc">Function to use when an item is requested to be added,
 ///                             supplied by the main factory.</param>
-public sealed partial class ArrayPropertyViewModel(string? name, Type elementType, List<PropertyViewModel>? value, Func<Type, PropertyViewModel> onAddItemFunc) : PropertyViewModel(name)
+public sealed partial class ArrayPropertyViewModel(MemberInfo info, Type elementType, List<PropertyViewModel>? value, Func<MemberInfo, Type, PropertyViewModel> onAddItemFunc) : PropertyViewModel(info)
 {
     /// <summary>
     /// The elements of the array.
@@ -32,7 +34,7 @@ public sealed partial class ArrayPropertyViewModel(string? name, Type elementTyp
     /// <summary>
     /// Stored function for when an item is requested to be added to the array.
     /// </summary>
-    private readonly Func<Type, PropertyViewModel> _onAddItemFunc = onAddItemFunc;
+    private readonly Func<MemberInfo, Type, PropertyViewModel> _onAddItemFunc = onAddItemFunc;
 
     /// <summary>
     /// Command bound to the RemoveElementButton button, which removes the specified element from
@@ -53,9 +55,14 @@ public sealed partial class ArrayPropertyViewModel(string? name, Type elementTyp
     [RelayCommand]
     private void AddItem()
     {
-        var property = _onAddItemFunc(_elementType);
+        // TODO: The MemberInfo here is wrong as that's the Array's information.
+        //       Fix it.
+        var property = _onAddItemFunc(MemberInfo, _elementType);
         property.IsArrayElement = true;
         Elements.Add(property);
     }
+
+    // TODO: Fix this to work
+    public override void SaveToInstance(IPrototype instance) { Save(instance, Elements); }
 }
 

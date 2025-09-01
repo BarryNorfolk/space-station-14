@@ -68,10 +68,13 @@
   </UserControl.DataTemplates>
 
   <Border BorderThickness="1" BorderBrush="Black" x:Name="protoList">
-    <StackPanel Orientation="Vertical" >
-      <TextBlock Text="{Binding SelectedPrototype}" />
-      <ItemsControl ItemsSource="{Binding Properties}" />
-    </StackPanel>
+    <ScrollViewer>
+        <StackPanel Orientation="Vertical" >
+            <TextBlock Text="{Binding SelectedName}" />
+            <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
+            <ItemsControl ItemsSource="{Binding Properties}" />
+        </StackPanel>
+    </ScrollViewer>
   </Border>
 </UserControl>
 

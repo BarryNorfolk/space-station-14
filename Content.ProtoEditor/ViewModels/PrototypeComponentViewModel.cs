@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels.Properties;
@@ -24,7 +25,9 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
 
     [ObservableProperty]
-    private string _selectedPrototype = "none";
+    private string _selectedName = "none";
+
+    private PrototypeViewModel? _selectedPrototype = null;
 
     public ObservableCollection<PropertyViewModel> Properties { get; } = [];
 
@@ -45,11 +48,33 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
         Initialization = InitializeAsync();
     }
 
+    [RelayCommand]
+    private void SaveChanges()
+    {
+        if (_selectedPrototype == null)
+            return;
+
+        foreach (var property in Properties)
+        {
+            if (property is FallbackPropertyViewModel)
+            {
+                // Don't attempt to set fields/properties on things we can't render
+                continue;
+            }
+
+            property.SaveToInstance(_selectedPrototype.Instance);
+        }
+    }
+
     private void OnPrototypeSelected(PrototypeViewModel? prototype)
     {
         Properties.Clear();
         if (prototype == null)
+        {
+            SelectedName = "None";
+            _selectedPrototype = null;
             return;
+        }
 
         /*
             Show all the properties of the particular thing.
@@ -57,7 +82,8 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
             - Consider Ignored properties per kind, things like Name which clash with `SetName` (which has a datafield for 'name')
         */
 
-        SelectedPrototype = prototype.Id;
+        _selectedPrototype = prototype;
+        SelectedName = prototype.Id;
         foreach (var property in prototype.Kind.GetAllProperties())
         {
             if (!property.IsBasePropertyDefinition())

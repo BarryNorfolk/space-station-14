@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.Utility;
 
 namespace Content.ProtoEditor.ViewModels.Properties;
@@ -37,18 +36,18 @@ public sealed class PropertyViewModelFactory
         }
     }
 
-    public PropertyViewModel MakeViewModel(string? name, Type objectType, object? value)
+    public PropertyViewModel MakeViewModel(MemberInfo info, Type objectType, object? value)
     {
         if (_viewModelRegistry.TryGetValue(objectType, out var implType))
         {
-            return (PropertyViewModel)Activator.CreateInstance(implType, name, value)!;
+            return (PropertyViewModel)Activator.CreateInstance(implType, info, value)!;
         }
 
         var fallbackType = PrettyPrint.PrintUserFacingTypeShort(objectType, 2);
-        return new FallbackPropertyViewModel(name, fallbackType);
+        return new FallbackPropertyViewModel(info, fallbackType);
     }
 
-    public ArrayPropertyViewModel CreatePropertyArray(string name, MemberInfo info, Type arrayType, IPrototype instance)
+    public ArrayPropertyViewModel CreatePropertyArray(MemberInfo info, Type arrayType, IPrototype instance)
     {
         List<PropertyViewModel> viewModels = [];
 
@@ -56,26 +55,14 @@ public sealed class PropertyViewModelFactory
         {
             foreach (var item in elements)
             {
-                var viewModel = MakeViewModel(null, arrayType, item);
+                var viewModel = MakeViewModel(info, arrayType, item); // TODO: Figure this bit out for saving
                 viewModel.IsArrayElement = true;
                 viewModels.Add(viewModel);
             }
         }
-        return new ArrayPropertyViewModel(name, arrayType, viewModels, OnAddArrayItem);
+        return new ArrayPropertyViewModel(info, arrayType, viewModels, OnAddArrayItem);
     }
 
-    private static string GetName(MemberInfo info)
-    {
-        if (info.GetCustomAttribute<DataFieldAttribute>() is var field &&
-            field != null &&
-            field.Tag != null)
-        {
-            // Tags override names of the properties
-            return field.Tag;
-        }
-
-        return info.Name;
-    }
 
     private static object? GetValue(MemberInfo info, IPrototype instance)
     {
@@ -89,20 +76,20 @@ public sealed class PropertyViewModelFactory
 
     public PropertyViewModel CreateFromField(FieldInfo info, IPrototype instance)
     {
-        return CreatePropertyInternal(GetName(info), info.FieldType, info, instance);
+        return CreatePropertyInternal(info, info.FieldType, instance);
     }
 
     public PropertyViewModel CreateFromProperty(PropertyInfo info, IPrototype instance)
     {
-        return CreatePropertyInternal(GetName(info), info.PropertyType, info, instance);
+        return CreatePropertyInternal(info, info.PropertyType, instance);
     }
 
-    private PropertyViewModel OnAddArrayItem(Type elementType)
+    private PropertyViewModel OnAddArrayItem(MemberInfo info, Type elementType)
     {
-        return MakeViewModel(null, elementType, null);
+        return MakeViewModel(info, elementType, null);
     }
 
-    private PropertyViewModel CreatePropertyInternal(string name, Type type, MemberInfo info, IPrototype instance)
+    private PropertyViewModel CreatePropertyInternal(MemberInfo info, Type type, IPrototype instance)
     {
         if (type.BaseType == typeof(Enum))
         {
@@ -114,9 +101,9 @@ public sealed class PropertyViewModelFactory
         {
             var elementType = type.GetElementType();
             if (elementType == null)
-                return new FallbackPropertyViewModel(name, "");
+                return new FallbackPropertyViewModel(info, "");
 
-            return CreatePropertyArray(name, info, elementType, instance);
+            return CreatePropertyArray(info, elementType, instance);
         }
         else if (type.IsGenericType)
         {
@@ -124,9 +111,9 @@ public sealed class PropertyViewModelFactory
             {
                 var genericTypes = type.GetGenericArguments();
                 if (genericTypes.Length == 0 || genericTypes.First() == null)
-                    return new FallbackPropertyViewModel(name, ""); // No idea what this is, maybe log an error?
+                    return new FallbackPropertyViewModel(info, ""); // No idea what this is, maybe log an error?
 
-                return CreatePropertyArray(name, info, genericTypes.First(), instance);
+                return CreatePropertyArray(info, genericTypes.First(), instance);
             }
             else if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
@@ -134,6 +121,6 @@ public sealed class PropertyViewModelFactory
             }
         }
 
-        return MakeViewModel(name, type, GetValue(info, instance));
+        return MakeViewModel(info, type, GetValue(info, instance));
     }
 }
