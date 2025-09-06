@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -6,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels.Properties;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using ReactiveUI;
 using Robust.Shared.Utility;
 
@@ -24,6 +26,14 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     /// </summary>
     private readonly PropertyViewModelFactory _viewModelFactory;
 
+    /// <summary>
+    /// Simple list of types to ignore when processing fields and properties of a prototype.
+    /// We _could_ be more specific and either use the full name of the type, or do a comparison by
+    /// type, but then that means perhaps polluting this file with many imports.
+    /// </summary>
+    private readonly List<string> _ignoredTypes = [
+        "ILocalizationManager"
+    ];
 
     [ObservableProperty]
     private string _selectedName = "none";
@@ -93,7 +103,8 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
         SelectedName = prototype.Id;
         foreach (var property in prototype.Kind.GetAllProperties())
         {
-            if (!property.IsBasePropertyDefinition())
+            if (!property.IsBasePropertyDefinition() ||
+                _ignoredTypes.Contains(property.PropertyType.Name))
             {
                 continue;
             }
@@ -106,7 +117,8 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
         foreach (var field in prototype.Kind.GetAllFields())
         {
-            if (field.IsBackingField())
+            if (field.IsBackingField() ||
+                _ignoredTypes.Contains(field.FieldType.Name))
             {
                 /*
                     TODO: Determine if this is correct, do we really want to drop all the backing fields
