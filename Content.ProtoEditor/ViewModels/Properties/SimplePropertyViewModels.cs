@@ -28,6 +28,12 @@ public abstract partial class PropertyViewModel : ViewModelBase
     private bool _isArrayElement = false;
 
     /// <summary>
+    /// Whether this property cannot be changed by the editor.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isFrozen = false;
+
+    /// <summary>
     /// Stored reference to the member (Field or Property) information on the Prototype.
     /// </summary>
     protected readonly MemberInfo MemberInfo;

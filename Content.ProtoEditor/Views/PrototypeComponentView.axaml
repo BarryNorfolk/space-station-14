@@ -23,31 +23,31 @@
             <ContentControl IsVisible="{Binding IsArrayElement}"
                             ContentTemplate="{StaticResource RemoveElementButton}" />
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200"/>
+            <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" IsEnabled="{Binding !IsFrozen}"/>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type vmp:BoolPropertyViewModel}">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
+            <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}"/>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type vmp:IntPropertyViewModel}">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" Width="200"/>
+            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}" Width="200"/>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type vmp:UIntPropertyViewModel}">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" Width="200"/>
+            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}" Width="200"/>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type vmp:EnumPropertyViewModel}">
         <StackPanel Orientation="Horizontal" >
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" Width = "100" IsVisible="{Binding !IsArrayElement}"/>
-            <ComboBox ItemsSource="{Binding Options}" Width="300" SelectedItem="{Binding Value, Mode=TwoWay}"/>
+            <ComboBox ItemsSource="{Binding Options}" Width="300" SelectedItem="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}"/>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type vmp:ArrayPropertyViewModel}">
@@ -62,7 +62,7 @@
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="F" Margin="0,0,5,0"/>
             <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <TextBlock Text="{Binding Value}" Width="200"/>
+            <TextBlock Text="{Binding Value}" Width="200" IsEnabled="false"/>
         </StackPanel>
     </DataTemplate>
   </UserControl.DataTemplates>

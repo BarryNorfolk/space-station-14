@@ -11,6 +11,7 @@ using Robust.Shared.Utility;
 
 namespace Content.ProtoEditor.ViewModels;
 
+// TODO: Rename this as it's not really a component view
 public sealed partial class PrototypeComponentViewModel : ViewModelBase
 {
     /// <summary>
@@ -62,6 +63,12 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
                 continue;
             }
 
+            if (property.IsFrozen)
+            {
+                // We can't write to this field/property so don't bother.
+                continue;
+            }
+
             property.SaveToInstance(_selectedPrototype.Instance);
         }
     }
@@ -91,7 +98,10 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
                 continue;
             }
 
-            Properties.Add(_viewModelFactory.CreateFromProperty(property, prototype.Instance));
+            var vm = _viewModelFactory.CreateFromProperty(property, prototype.Instance);
+            vm.IsFrozen = !property.CanWrite;
+
+            Properties.Add(vm);
         }
 
         foreach (var field in prototype.Kind.GetAllFields())
@@ -104,6 +114,7 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
                 */
                 continue;
             }
+
             Properties.Add(_viewModelFactory.CreateFromField(field, prototype.Instance));
         }
     }
