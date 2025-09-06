@@ -9,25 +9,30 @@ using Robust.Shared.Prototypes;
 namespace Content.ProtoEditor.Services;
 
 /// <summary>
-/// Provides access to Prototypes and their kinds, loaded from the resolved assembly.
+/// Provides access to Prototypes and their kinds, loaded from the prototype manager.
 /// </summary>
 public sealed class PrototypeProvider
 {
     /// <summary>
-    /// Internal Assembly provider that gives access to the actual PrototypeManager from the real
-    /// Server/Client.
+    /// Internal Assembly provider that gives access to the actual PrototypeManager
     /// </summary>
-    private readonly AssemblyProvider _assembly;
+    private readonly DependencyProvider _assembly;
+
+    /// <summary>
+    /// The worker thread with all IoC dependencies initialized on it, used to background
+    /// certain work tasks and not block UI.
+    /// </summary>
+    private readonly BackgroundWorkerProvider _worker;
 
     /// <summary>
     /// Stored resolution of the Prototype manager from the Server assembly.
     /// </summary>
-    private IPrototypeManager? _prototypeManager;
+    private IPrototypeManager _prototypeManager;
 
     /// <summary>
     /// Stored Prototypes wrapped in a ViewModel, ready for use in Views/UI.
     /// </summary>
-    private SourceCache<PrototypeViewModel, int> _prototypes = new(x => x.Id.GetHashCode());
+    private readonly SourceCache<PrototypeViewModel, int> _prototypes = new(x => x.Id.GetHashCode());
 
     /// <summary>
     /// List of all the "Kinds" (or types) of Prototypes, wrapped in a PrototypeKind class
@@ -35,34 +40,22 @@ public sealed class PrototypeProvider
     /// </summary>
     private readonly List<PrototypeKind> _kinds = [];
 
-    public PrototypeProvider(AssemblyProvider assembly)
+    public PrototypeProvider(DependencyProvider assembly, BackgroundWorkerProvider worker)
     {
         _assembly = assembly;
-        Initialization = InitializeAsync();
+        _worker = worker;
+
+        _prototypeManager = _assembly.Resolve<IPrototypeManager>();
+        _prototypeManager.Initialize();
+        _prototypeManager.RegisterIgnore("parallax");
+
+        Initialization = _worker.RunAsync(LoadPrototypes);
     }
 
     /// <summary>
     /// Exposes the initialization task so that other async tasks may await on it.
     /// </summary>
     public Task Initialization { get; private set; }
-
-    /// <summary>
-    /// Initializes this class.
-    /// Awaits the assembly to be ready, resolves the PrototypeManager from there, and then
-    /// loads the prototypes and their kinds.
-    /// </summary>
-    /// <returns>The initialization task</returns>
-    private async Task InitializeAsync()
-    {
-        await _assembly.Initialization;
-
-        var server = _assembly.Server();
-        if (server == null)
-            return;
-
-        _prototypeManager = server.Resolve<IPrototypeManager>();
-        LoadPrototypes();
-    }
 
     /// <summary>
     /// Gets the current cache of Prototypes.
@@ -85,10 +78,9 @@ public sealed class PrototypeProvider
     /// <summary>
     /// Loads and processes Prototypes and their Kinds from the resolved prototype manager.
     /// </summary>
-    private void LoadPrototypes()
+    private Task LoadPrototypes()
     {
-        if (_prototypeManager == null)
-            return;
+        _prototypeManager.LoadDefaultPrototypes();
 
         foreach (var kind in _prototypeManager.EnumeratePrototypeKinds())
         {
@@ -100,19 +92,19 @@ public sealed class PrototypeProvider
         }
 
         _kinds.Sort((lhs, rhs) => lhs.ShortName.CompareTo(rhs.ShortName));
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Forces a reload of all prototypes and their kinds.
     /// </summary>
-    public void ForceReload()
+    public async Task ForceReload()
     {
-        if (_prototypeManager == null)
-            return;
-
         var modified = new Dictionary<Type, HashSet<string>>();
         _prototypeManager.ReloadPrototypes(modified);
         _kinds.Clear();
-        LoadPrototypes();
+
+        await _worker.RunAsync(LoadPrototypes);
     }
 }

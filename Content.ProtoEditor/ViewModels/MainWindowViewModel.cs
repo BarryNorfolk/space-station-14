@@ -18,7 +18,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
     /// </summary>
-    private readonly AssemblyProvider _assemblyProvider;
+    private readonly DependencyProvider _assemblyProvider;
 
     /// <summary>
     /// Task for handling Initialization of this model view.
@@ -26,7 +26,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     public Task Initialization { get; private set; }
 
-    public MainWindowViewModel(AssemblyProvider assemblyProvider)
+    public MainWindowViewModel(DependencyProvider assemblyProvider)
     {
         _assemblyProvider = assemblyProvider;
 
@@ -39,8 +39,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// <returns>The async task for the initialization.</returns>
     private async Task InitializeAsync()
     {
-        await _assemblyProvider.Initialization;
-
         State = "Assemblies Loaded.";
     }
 }

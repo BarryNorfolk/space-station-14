@@ -20,9 +20,10 @@ public sealed partial class App : Application
     {
         PoolManager.Startup();
 
-        // Set up Dependency Injection
+        // Set up Dependency Injection for our application
         var collection = new ServiceCollection();
-        collection.AddSingleton<AssemblyProvider>();
+        collection.AddSingleton<DependencyProvider>();
+        collection.AddSingleton<BackgroundWorkerProvider>();
         collection.AddSingleton<PrototypeProvider>();
         collection.AddSingleton<PropertyViewModelFactory>();
 
