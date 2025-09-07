@@ -1,80 +1,116 @@
-<UserControl  xmlns="https://github.com/avaloniaui"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:vm="using:Content.ProtoEditor.ViewModels"
-              xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
-              x:Class="Content.ProtoEditor.Views.PrototypeComponentView"
-              x:DataType="vm:PrototypeComponentViewModel" >
+<UserControl
+    x:Class="Content.ProtoEditor.Views.PrototypeComponentView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Content.ProtoEditor.ViewModels"
+    xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
+    x:DataType="vm:PrototypeComponentViewModel">
 
-  <Design.DataContext>
-    <vm:PrototypeComponentViewModel />
-  </Design.DataContext>
+    <Design.DataContext>
+        <vm:PrototypeComponentViewModel />
+    </Design.DataContext>
 
-  <UserControl.Resources>
-    <DataTemplate x:Key="RemoveElementButton" >
-        <Button Content="-"
+    <UserControl.Resources>
+        <DataTemplate x:Key="RemoveElementButton">
+            <Button
                 Command="{Binding $parent[ItemsControl]?.((vmp:ArrayPropertyViewModel)DataContext).RemoveItemCommand}"
-                CommandParameter="{Binding $parent[StackPanel].DataContext}"/>
-    </DataTemplate>
-  </UserControl.Resources>
+                CommandParameter="{Binding $parent[StackPanel].DataContext}"
+                Content="-" />
+        </DataTemplate>
+    </UserControl.Resources>
 
-  <UserControl.DataTemplates>
-    <DataTemplate DataType="{x:Type vmp:StringPropertyViewModel}">
-        <StackPanel Orientation="Horizontal">
-            <ContentControl IsVisible="{Binding IsArrayElement}"
-                            ContentTemplate="{StaticResource RemoveElementButton}" />
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" IsEnabled="{Binding !IsFrozen}"/>
-        </StackPanel>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:BoolPropertyViewModel}">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}"/>
-        </StackPanel>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:IntPropertyViewModel}">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}" Width="200"/>
-        </StackPanel>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:UIntPropertyViewModel}">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <NumericUpDown Value="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}" Width="200"/>
-        </StackPanel>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:EnumPropertyViewModel}">
-        <StackPanel Orientation="Horizontal" >
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" Width = "100" IsVisible="{Binding !IsArrayElement}"/>
-            <ComboBox ItemsSource="{Binding Options}" Width="300" SelectedItem="{Binding Value, Mode=TwoWay}" IsEnabled="{Binding !IsFrozen}"/>
-        </StackPanel>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:ArrayPropertyViewModel}">
-        <Expander VerticalAlignment="Top" Header="{Binding Name}" Width="400" >
-            <StackPanel Orientation="Vertical">
-                <ItemsControl ItemsSource="{Binding Elements}" />
-                <Button Command="{Binding AddItemCommand}" Content="Add Item"/>
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="{x:Type vmp:StringPropertyViewModel}">
+            <StackPanel>
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <TextBox Text="{Binding Value, Mode=TwoWay}" />
             </StackPanel>
-        </Expander>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type vmp:FallbackPropertyViewModel}">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="F" Margin="0,0,5,0"/>
-            <TextBlock Text="{Binding Name}" Margin="0,0,5,0" IsVisible="{Binding !IsArrayElement}"/>
-            <TextBlock Text="{Binding Value}" Width="200" IsEnabled="false"/>
-        </StackPanel>
-    </DataTemplate>
-  </UserControl.DataTemplates>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:BoolPropertyViewModel}">
+            <StackPanel>
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:IntPropertyViewModel}">
+            <StackPanel>
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <NumericUpDown Value="{Binding Value, Mode=TwoWay}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:UIntPropertyViewModel}">
+            <StackPanel Orientation="Horizontal">
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <NumericUpDown Value="{Binding Value, Mode=TwoWay}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:EnumPropertyViewModel}">
+            <StackPanel Orientation="Horizontal">
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Value, Mode=TwoWay}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:ArrayPropertyViewModel}">
+            <Expander
+                Width="400"
+                VerticalAlignment="Top"
+                Header="{Binding Name}">
+                <StackPanel Orientation="Vertical">
+                    <ItemsControl ItemsSource="{Binding Elements}" />
+                    <Button Command="{Binding AddItemCommand}" Content="Add Item" />
+                </StackPanel>
+            </Expander>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmp:FallbackPropertyViewModel}">
+            <StackPanel>
+                <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+                <TextBlock
+                    Width="200"
+                    IsEnabled="false"
+                    Text="{Binding Value}" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.DataTemplates>
 
-  <Border BorderThickness="1" BorderBrush="Black" x:Name="protoList">
-    <ScrollViewer>
-        <StackPanel Orientation="Vertical" >
-            <TextBlock Text="{Binding SelectedName}" />
-            <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
-            <ItemsControl ItemsSource="{Binding Properties}" />
-        </StackPanel>
-    </ScrollViewer>
-  </Border>
+    <Border
+        x:Name="protoList"
+        BorderBrush="Black"
+        BorderThickness="1">
+        <ScrollViewer>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SelectedName}" />
+                    <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Properties}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="175,35,*">
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Margin="0,0,5,0"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding !IsArrayElement}"
+                                    Text="{Binding Name}" />
+
+                                <PathIcon
+                                    Grid.Column="1"
+                                    Width="25"
+                                    Height="25"
+                                    Margin="5,0,5,0"
+                                    Data="{StaticResource property_frozen}"
+                                    IsVisible="{Binding IsFrozen}"
+                                    ToolTip.Tip="This property is frozen and cannot be written to." />
+
+                                <ContentControl
+                                    Grid.Column="2"
+                                    Content="{Binding}"
+                                    IsEnabled="{Binding !IsFrozen}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
 </UserControl>
-
