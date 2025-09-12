@@ -20,7 +20,7 @@ namespace Content.ProtoEditor.Services;
 /// Initializes and provides access to systems for usage in the editor.
 /// Such as, PrototypeManager, LocalisationManager, etc
 /// </summary>
-public sealed class DependencyProvider
+public sealed partial class DependencyProvider
 {
     /// <summary>
     /// The collection of all known/registered dependencies and the graph between them.
@@ -38,13 +38,10 @@ public sealed class DependencyProvider
 
     /// <summary>
     /// Initializes the dependency collection by registering types and their interfaces.
-    /// TODO: Have our own list of IoCs that just covers what we need to have.
-    ///       I'm not sure we need to have literally everything the server has, and their
-    ///       exact implementations of all the interfaces from there.
     /// </summary>
     private void InitializeCollection()
     {
-        ServerIoC.RegisterIoC(_dependencyCollection);
+        RegisterIoC(_dependencyCollection);
         InitializeForThread();
         _dependencyCollection.BuildGraph();
     }
