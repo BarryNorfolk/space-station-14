@@ -27,7 +27,7 @@ public sealed class PrototypeProvider
     /// <summary>
     /// Stored resolution of the Prototype manager from the Server assembly.
     /// </summary>
-    private IPrototypeManager _prototypeManager;
+    private readonly EditorPrototypeManager _prototypeManager;
 
     /// <summary>
     /// Stored Prototypes wrapped in a ViewModel, ready for use in Views/UI.
@@ -45,7 +45,7 @@ public sealed class PrototypeProvider
         _assembly = assembly;
         _worker = worker;
 
-        _prototypeManager = _assembly.Resolve<IPrototypeManager>();
+        _prototypeManager = (EditorPrototypeManager)assembly.Resolve<IPrototypeManager>();
         _prototypeManager.Initialize();
         _prototypeManager.RegisterIgnore("parallax");
 
