@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -37,6 +38,9 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _selectedName = "none";
+
+    [ObservableProperty]
+    private string _parents = "?";
 
     private PrototypeViewModel? _selectedPrototype = null;
 
@@ -101,6 +105,9 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
         _selectedPrototype = prototype;
         SelectedName = prototype.Id;
+        Parents = _prototypeProvider.GetParents(prototype);
+        var baseFields = _prototypeProvider.GetBaseFields(prototype);
+
         foreach (var property in prototype.Kind.GetAllProperties())
         {
             if (!property.IsBasePropertyDefinition() ||
@@ -111,6 +118,11 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
             var vm = _viewModelFactory.CreateFromProperty(property, prototype.Instance);
             vm.IsFrozen = !property.CanWrite;
+
+            if (baseFields.TryGetValue(vm.Name, out var data))
+            {
+                vm.SetInheritedFields(data);
+            }
 
             Properties.Add(vm);
         }
@@ -127,7 +139,14 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
                 continue;
             }
 
-            Properties.Add(_viewModelFactory.CreateFromField(field, prototype.Instance));
+            var vm = _viewModelFactory.CreateFromField(field, prototype.Instance);
+
+            if (baseFields.TryGetValue(vm.Name, out var data))
+            {
+                vm.SetInheritedFields(data);
+            }
+
+            Properties.Add(vm);
         }
     }
 

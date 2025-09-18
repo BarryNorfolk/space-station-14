@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Content.ProtoEditor.Models;
 using Content.ProtoEditor.ViewModels;
@@ -33,6 +34,16 @@ public sealed class PrototypeProvider
     /// Stored Prototypes wrapped in a ViewModel, ready for use in Views/UI.
     /// </summary>
     private readonly SourceCache<PrototypeViewModel, int> _prototypes = new(x => x.Id.GetHashCode());
+
+    /// <summary>
+    /// List of field names from mapping nodes to ignore when enumerating inherited fields
+    /// from parent prototypes.
+    /// </summary>
+    private readonly List<string> _ignoredInheritedFields = [
+        "id",
+        "name",
+        "abstract",
+    ];
 
     /// <summary>
     /// List of all the "Kinds" (or types) of Prototypes, wrapped in a PrototypeKind class
@@ -106,5 +117,34 @@ public sealed class PrototypeProvider
         _kinds.Clear();
 
         await _worker.RunAsync(LoadPrototypes);
+    }
+
+    public Dictionary<string, List<InheritedFieldData>> GetBaseFields(PrototypeViewModel prototype)
+    {
+        return _prototypeManager.EnumerateBaseFields(prototype.Kind, prototype.Id, _ignoredInheritedFields);
+    }
+
+    /*
+        Ok so, the abstracts DON'T Get any information in the
+        EnumerateAllParents because they don't exist in the prototype
+        mananger. That's weird I guess.
+        Investigate how the inheritance works with merging properties
+        from abstract prototypes that don't actually have anything.
+    */
+    public string GetParents(PrototypeViewModel prototype)
+    {
+        if (!prototype.Kind.IsAssignableTo(typeof(IInheritingPrototype)))
+        {
+            return "Not inherited";
+        }
+
+        var f = new StringBuilder();
+        foreach (var parentId in _prototypeManager.EnumerateAllParents(prototype.Kind, prototype.Id))
+        {
+            f.Append(parentId);
+            f.Append(',');
+        }
+
+        return f.ToString();
     }
 }

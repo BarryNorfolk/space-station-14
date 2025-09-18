@@ -79,13 +79,14 @@
         <ScrollViewer>
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding SelectedName}" />
                     <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
+                    <TextBlock Text="{Binding SelectedName}" />
                 </StackPanel>
+                <TextBlock Text="{Binding Parents}" />
                 <ItemsControl ItemsSource="{Binding Properties}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="175,35,*">
+                            <Grid ColumnDefinitions="175,35,35,*">
                                 <TextBlock
                                     Grid.Column="0"
                                     Margin="0,0,5,0"
@@ -102,8 +103,17 @@
                                     IsVisible="{Binding IsFrozen}"
                                     ToolTip.Tip="This property is frozen and cannot be written to." />
 
-                                <ContentControl
+                                <PathIcon
                                     Grid.Column="2"
+                                    Width="25"
+                                    Height="25"
+                                    Margin="5,0,5,0"
+                                    Data="{StaticResource property_inherited}"
+                                    IsVisible="{Binding InheritedFields, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                    ToolTip.Tip="{Binding InheritedFields}" />
+
+                                <ContentControl
+                                    Grid.Column="3"
                                     Content="{Binding}"
                                     IsEnabled="{Binding !IsFrozen}" />
                             </Grid>

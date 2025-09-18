@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Content.ProtoEditor.Services;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.Utility;
@@ -19,7 +22,7 @@ public abstract partial class PropertyViewModel : ViewModelBase
     /// used in the context of an array.
     /// </summary>
     [ObservableProperty]
-    private string? _name = null;
+    private string _name;
 
     /// <summary>
     /// Whether this property is part of an array.
@@ -32,6 +35,9 @@ public abstract partial class PropertyViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     private bool _isFrozen = false;
+
+    [ObservableProperty]
+    private string? _inheritedFields = null;
 
     /// <summary>
     /// Stored reference to the member (Field or Property) information on the Prototype.
@@ -92,6 +98,20 @@ public abstract partial class PropertyViewModel : ViewModelBase
         }
 
         return info.Name;
+    }
+
+    public virtual void SetInheritedFields(List<InheritedFieldData> inheritedFields)
+    {
+        if (inheritedFields.Count == 0)
+            return;
+
+        var s = new StringBuilder();
+        foreach (var d in inheritedFields)
+        {
+            s.Append($"Inherits [{d.Value}] from [{d.Id}]\n");
+        }
+
+        InheritedFields = s.ToString();
     }
 }
 
