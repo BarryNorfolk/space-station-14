@@ -1,24 +1,22 @@
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core.Plugins;
+using System;
 using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Templates;
+using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Content.IntegrationTests;
+using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels;
+using Content.ProtoEditor.ViewModels.Properties;
 using Content.ProtoEditor.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Content.ProtoEditor.Services;
-using Content.IntegrationTests;
-using Content.ProtoEditor.ViewModels.Properties;
-using Avalonia.Controls.Templates;
-using System;
-using Avalonia.Controls;
 
 namespace Content.ProtoEditor;
 
-public sealed partial class App : Application
+public sealed class App : Application
 {
-    public ServiceProvider Services { get; private set; }
-
     public App()
     {
         PoolManager.Startup();
@@ -36,6 +34,8 @@ public sealed partial class App : Application
 
         Services = collection.BuildServiceProvider();
     }
+
+    public ServiceProvider Services { get; }
 
     ~App()
     {
@@ -58,7 +58,7 @@ public sealed partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = Services.GetRequiredService<MainWindowViewModel>()
+                DataContext = Services.GetRequiredService<MainWindowViewModel>(),
             };
         }
 

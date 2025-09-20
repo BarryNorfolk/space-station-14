@@ -11,6 +11,7 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 public sealed class PropertyViewModelFactory
 {
     private readonly Dictionary<Type, Type> _viewModelRegistry = [];
+
     public PropertyViewModelFactory()
     {
         var assembly = typeof(PropertyViewModelFactory).Assembly;
@@ -26,9 +27,7 @@ public sealed class PropertyViewModelFactory
                 foreach (var supportedType in attr.TargetTypes)
                 {
                     if (_viewModelRegistry.ContainsKey(supportedType))
-                    {
                         throw new Exception($"Already registered a view model for {supportedType}");
-                    }
 
                     _viewModelRegistry[supportedType] = type;
                 }
@@ -39,9 +38,7 @@ public sealed class PropertyViewModelFactory
     public PropertyViewModel MakeViewModel(MemberInfo info, Type objectType, object? value)
     {
         if (_viewModelRegistry.TryGetValue(objectType, out var implType))
-        {
             return (PropertyViewModel)Activator.CreateInstance(implType, info, value)!;
-        }
 
         var fallbackType = PrettyPrint.PrintUserFacingTypeShort(objectType, 2);
         return new FallbackPropertyViewModel(info, fallbackType);
@@ -60,6 +57,7 @@ public sealed class PropertyViewModelFactory
                 viewModels.Add(viewModel);
             }
         }
+
         return new ArrayPropertyViewModel(info, arrayType, viewModels, OnAddArrayItem);
     }
 
@@ -105,7 +103,8 @@ public sealed class PropertyViewModelFactory
 
             return CreatePropertyArray(info, elementType, instance);
         }
-        else if (type.IsGenericType)
+
+        if (type.IsGenericType)
         {
             if (type.GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -115,7 +114,8 @@ public sealed class PropertyViewModelFactory
 
                 return CreatePropertyArray(info, genericTypes.First(), instance);
             }
-            else if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+
+            if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
                 // TODO: Dictionary views
             }

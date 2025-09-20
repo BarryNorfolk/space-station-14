@@ -12,6 +12,11 @@ namespace Content.ProtoEditor.ViewModels;
 public sealed partial class PrototypeViewModel(IPrototype prototype, Type kind) : ViewModelBase
 {
     /// <summary>
+    /// The base instance of the prototype that would be instantiated.
+    /// </summary>
+    public readonly IPrototype Instance = prototype;
+
+    /// <summary>
     /// The unique ID of the prototype.
     /// </summary>
     [ObservableProperty]
@@ -20,7 +25,6 @@ public sealed partial class PrototypeViewModel(IPrototype prototype, Type kind) 
     /// <summary>
     /// The file that contains this particular prototype, used for saving/updating
     /// the model.
-    ///
     /// TODO: Populate this somehow.
     /// </summary>
     public string FileLocation = "";
@@ -29,10 +33,5 @@ public sealed partial class PrototypeViewModel(IPrototype prototype, Type kind) 
     /// The "Kind" of prototype this is for,
     /// e.g. EntityPrototype, AccessPrototype, etc.
     /// </summary>
-    public Type Kind = kind;
-
-    /// <summary>
-    /// The base instance of the prototype that would be instantiated.
-    /// </summary>
-    public readonly IPrototype Instance = prototype;
+    public readonly Type Kind = kind;
 }

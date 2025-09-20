@@ -16,28 +16,17 @@ namespace Content.ProtoEditor.ViewModels;
 public sealed partial class PrototypeListViewModel : ViewModelBase
 {
     /// <summary>
-    /// Janky way of having a special "All" prototype that can be listed as a Kind
-    /// on the Selection combobox
-    ///
-    /// TODO: Maybe this should be removed in favour of always finding/selecting
-    /// "Robust.Shared.Prototypes.EntityPrototype" by default.
+    /// Special dummy type for putting at the top of the kind selection combo box,
+    /// so that people can filter on "All"
+    /// TODO: Better naming of the actual type
     /// </summary>
-    private sealed class All : IPrototype
-    {
-        public string ID { get; } = "Dummy";
-    }
-
-    /// <summary>
-    /// String to use for filtering prototypes in the list view.
-    /// </summary>
-    [ObservableProperty]
-    private string _listFilterText = "";
+    private readonly PrototypeKind _defaultAll = new(typeof(All));
 
     /// <summary>
     /// Used to enable dynamic filtering of the source prototype list.
     /// </summary>
     private readonly BehaviorSubject<Func<PrototypeViewModel, bool>> _filterSubject =
-    new(p => true);
+        new(p => true);
 
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
@@ -49,13 +38,6 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     /// in the PrototypeManager.
     /// </summary>
     private readonly ReadOnlyObservableCollection<PrototypeViewModel> _prototypeViewModels;
-    public ReadOnlyObservableCollection<PrototypeViewModel> PrototypeViewModels => _prototypeViewModels;
-
-    /// <summary>
-    /// List of all known "Kinds" of prototypes, updated as the prototype manager reloads and
-    /// can be used for filtering.
-    /// </summary>
-    public ObservableCollection<PrototypeKind> Kinds { get; set; } = [];
 
     /// <summary>
     /// The 'Kind' to use for filtering prototypes in the list view
@@ -64,23 +46,16 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     private PrototypeKind _listFilterKind;
 
     /// <summary>
-    /// Special dummy type for putting at the top of the kind selection combo box,
-    /// so that people can filter on "All"
-    /// TODO: Better naming of the actual type
+    /// String to use for filtering prototypes in the list view.
     /// </summary>
-    private readonly PrototypeKind _defaultAll = new(typeof(All));
+    [ObservableProperty]
+    private string _listFilterText = "";
 
     /// <summary>
     /// The currently selected prototype, if any, in the list of available ones.
     /// </summary>
     [ObservableProperty]
-    private PrototypeViewModel? _selectedPrototype = null;
-
-    /// <summary>
-    /// Task for handling Initialization of this model view.
-    /// Can be await'ed on by other dependents to ensure required properties are setup.
-    /// </summary>
-    public Task Initialization { get; private set; }
+    private PrototypeViewModel? _selectedPrototype;
 
     public PrototypeListViewModel(PrototypeProvider prototypeProvider)
     {
@@ -88,7 +63,8 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
 
         // This isn't populated yet but we can still bind to the "empty" cache,
         // which will be loaded later on once the async initialization is complete.
-        _prototypeProvider.GetPrototypeModels().Connect()
+        _prototypeProvider.GetPrototypeModels()
+            .Connect()
             .Sort(SortExpressionComparer<PrototypeViewModel>.Descending(t => t.Id)) //TODO: Make this actually work?
             .Filter(_filterSubject)
             .Bind(out _prototypeViewModels)
@@ -98,6 +74,20 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
 
         Initialization = InitializeAsync();
     }
+
+    public ReadOnlyObservableCollection<PrototypeViewModel> PrototypeViewModels => _prototypeViewModels;
+
+    /// <summary>
+    /// List of all known "Kinds" of prototypes, updated as the prototype manager reloads and
+    /// can be used for filtering.
+    /// </summary>
+    public ObservableCollection<PrototypeKind> Kinds { get; set; } = [];
+
+    /// <summary>
+    /// Task for handling Initialization of this model view.
+    /// Can be await'ed on by other dependents to ensure required properties are setup.
+    /// </summary>
+    public Task Initialization { get; private set; }
 
     /// <summary>
     /// Handles when the ListFilterText changes and causes a re-filtering of the visible list
@@ -138,16 +128,12 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     {
         // First check whether this prototype is even in the correct category
         if (!ListFilterKind.Equals(_defaultAll) && ListFilterKind.Kind != prototype.Kind)
-        {
             return false;
-        }
 
         // Then perform a string check against the ID of the prototype
         // TODO: Possibly improve fuzzy finding and string validation
         if (!string.IsNullOrWhiteSpace(ListFilterText) && !prototype.Id.Contains(ListFilterText))
-        {
             return false;
-        }
 
         return true;
     }
@@ -167,5 +153,16 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
         {
             Kinds.Add(kind);
         }
+    }
+
+    /// <summary>
+    /// Janky way of having a special "All" prototype that can be listed as a Kind
+    /// on the Selection combobox
+    /// TODO: Maybe this should be removed in favour of always finding/selecting
+    /// "Robust.Shared.Prototypes.EntityPrototype" by default.
+    /// </summary>
+    private sealed class All : IPrototype
+    {
+        public string ID { get; } = "Dummy";
     }
 }

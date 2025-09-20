@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,16 +15,16 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 /// <param name="info">Member information for the prototype.</param>
 /// <param name="elementType">The type of the elements within this array.</param>
 /// <param name="value">Initial array values for this property.</param>
-/// <param name="onAddItemFunc">Function to use when an item is requested to be added,
-///                             supplied by the main factory.</param>
-public sealed partial class ArrayPropertyViewModel(MemberInfo info, Type elementType, List<PropertyViewModel>? value, Func<MemberInfo, Type, PropertyViewModel> onAddItemFunc) : PropertyViewModel(info)
+/// <param name="onAddItemFunc">
+/// Function to use when an item is requested to be added,
+/// supplied by the main factory.
+/// </param>
+public sealed partial class ArrayPropertyViewModel(
+    MemberInfo info,
+    Type elementType,
+    List<PropertyViewModel>? value,
+    Func<MemberInfo, Type, PropertyViewModel> onAddItemFunc) : PropertyViewModel(info)
 {
-    /// <summary>
-    /// The elements of the array.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<PropertyViewModel> _elements = value != null ? new(value) : [];
-
     /// <summary>
     /// The type of the elements contained within the array.
     /// </summary>
@@ -35,6 +34,13 @@ public sealed partial class ArrayPropertyViewModel(MemberInfo info, Type element
     /// Stored function for when an item is requested to be added to the array.
     /// </summary>
     private readonly Func<MemberInfo, Type, PropertyViewModel> _onAddItemFunc = onAddItemFunc;
+
+    /// <summary>
+    /// The elements of the array.
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<PropertyViewModel> _elements =
+        value != null ? new ObservableCollection<PropertyViewModel>(value) : [];
 
     /// <summary>
     /// Command bound to the RemoveElementButton button, which removes the specified element from
@@ -65,4 +71,3 @@ public sealed partial class ArrayPropertyViewModel(MemberInfo info, Type element
     // TODO: Fix this to work
     public override void SaveToInstance(IPrototype instance) { Save(instance, Elements); }
 }
-

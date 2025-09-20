@@ -11,26 +11,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
+    <Folder Include="Models\"/>
+    <AvaloniaResource Include="Assets\**"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" />
-    <PackageReference Include="Avalonia.Desktop " />
-    <PackageReference Include="Avalonia.ReactiveUI" />
-    <PackageReference Include="Avalonia.Themes.Fluent" />
-    <PackageReference Include="Avalonia.Fonts.Inter" />
-    <PackageReference Include="Avalonia.Diagnostics" />
-    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="Avalonia.Desktop "/>
+    <PackageReference Include="Avalonia.ReactiveUI"/>
+    <PackageReference Include="Avalonia.Themes.Fluent"/>
+    <PackageReference Include="Avalonia.Fonts.Inter"/>
+    <PackageReference Include="Avalonia.Diagnostics"/>
+    <PackageReference Include="CommunityToolkit.Mvvm"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Content.Client\Content.Client.csproj" />
-    <ProjectReference Include="..\Content.Server\Content.Server.csproj" />
-    <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
-    <ProjectReference Include="..\Content.IntegrationTests\Content.IntegrationTests.csproj" />
-    <ProjectReference Include="..\RobustToolbox\Robust.Shared\Robust.Shared.csproj" />
+    <ProjectReference Include="..\Content.Client\Content.Client.csproj"/>
+    <ProjectReference Include="..\Content.Server\Content.Server.csproj"/>
+    <ProjectReference Include="..\Content.Shared\Content.Shared.csproj"/>
+    <ProjectReference Include="..\Content.IntegrationTests\Content.IntegrationTests.csproj"/>
+    <ProjectReference Include="..\RobustToolbox\Robust.Shared\Robust.Shared.csproj"/>
   </ItemGroup>
 
-  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets"/>
 </Project>

@@ -20,10 +20,21 @@ public sealed class PrototypeProvider
     private readonly DependencyProvider _assembly;
 
     /// <summary>
-    /// The worker thread with all IoC dependencies initialized on it, used to background
-    /// certain work tasks and not block UI.
+    /// List of field names from mapping nodes to ignore when enumerating inherited fields
+    /// from parent prototypes.
     /// </summary>
-    private readonly BackgroundWorkerProvider _worker;
+    private readonly List<string> _ignoredInheritedFields =
+    [
+        "id",
+        "name",
+        "abstract",
+    ];
+
+    /// <summary>
+    /// List of all the "Kinds" (or types) of Prototypes, wrapped in a PrototypeKind class
+    /// for easier handling within UI code.
+    /// </summary>
+    private readonly List<PrototypeKind> _kinds = [];
 
     /// <summary>
     /// Stored resolution of the Prototype manager from the Server assembly.
@@ -36,20 +47,10 @@ public sealed class PrototypeProvider
     private readonly SourceCache<PrototypeViewModel, int> _prototypes = new(x => x.Id.GetHashCode());
 
     /// <summary>
-    /// List of field names from mapping nodes to ignore when enumerating inherited fields
-    /// from parent prototypes.
+    /// The worker thread with all IoC dependencies initialized on it, used to background
+    /// certain work tasks and not block UI.
     /// </summary>
-    private readonly List<string> _ignoredInheritedFields = [
-        "id",
-        "name",
-        "abstract",
-    ];
-
-    /// <summary>
-    /// List of all the "Kinds" (or types) of Prototypes, wrapped in a PrototypeKind class
-    /// for easier handling within UI code.
-    /// </summary>
-    private readonly List<PrototypeKind> _kinds = [];
+    private readonly BackgroundWorkerProvider _worker;
 
     public PrototypeProvider(DependencyProvider assembly, BackgroundWorkerProvider worker)
     {
@@ -78,7 +79,6 @@ public sealed class PrototypeProvider
     }
 
     /// <summary>
-    ///
     /// </summary>
     /// <returns>List of all loaded prototype Kinds</returns>
     public List<PrototypeKind> GetKinds()
@@ -134,9 +134,7 @@ public sealed class PrototypeProvider
     public string GetParents(PrototypeViewModel prototype)
     {
         if (!prototype.Kind.IsAssignableTo(typeof(IInheritingPrototype)))
-        {
             return "Not inherited";
-        }
 
         var f = new StringBuilder();
         foreach (var parentId in _prototypeManager.EnumerateAllParents(prototype.Kind, prototype.Id))

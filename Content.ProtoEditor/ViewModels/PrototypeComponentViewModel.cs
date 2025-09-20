@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels.Properties;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using ReactiveUI;
 using Robust.Shared.Utility;
 
@@ -17,6 +15,16 @@ namespace Content.ProtoEditor.ViewModels;
 // TODO: Rename this as it's not really a component view
 public sealed partial class PrototypeComponentViewModel : ViewModelBase
 {
+    /// <summary>
+    /// Simple list of types to ignore when processing fields and properties of a prototype.
+    /// We _could_ be more specific and either use the full name of the type, or do a comparison by
+    /// type, but then that means perhaps polluting this file with many imports.
+    /// </summary>
+    private readonly List<string> _ignoredTypes =
+    [
+        "ILocalizationManager",
+    ];
+
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
     /// </summary>
@@ -27,30 +35,13 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     /// </summary>
     private readonly PropertyViewModelFactory _viewModelFactory;
 
-    /// <summary>
-    /// Simple list of types to ignore when processing fields and properties of a prototype.
-    /// We _could_ be more specific and either use the full name of the type, or do a comparison by
-    /// type, but then that means perhaps polluting this file with many imports.
-    /// </summary>
-    private readonly List<string> _ignoredTypes = [
-        "ILocalizationManager"
-    ];
+    [ObservableProperty]
+    private string _parents = "?";
 
     [ObservableProperty]
     private string _selectedName = "none";
 
-    [ObservableProperty]
-    private string _parents = "?";
-
-    private PrototypeViewModel? _selectedPrototype = null;
-
-    public ObservableCollection<PropertyViewModel> Properties { get; } = [];
-
-    /// <summary>
-    /// Task for handling Initialization of this model view.
-    /// Can be await'ed on by other dependents to ensure required properties are setup.
-    /// </summary>
-    public Task Initialization { get; private set; }
+    private PrototypeViewModel? _selectedPrototype;
 
     public PrototypeComponentViewModel(PrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
     {
@@ -62,6 +53,14 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
         Initialization = InitializeAsync();
     }
+
+    public ObservableCollection<PropertyViewModel> Properties { get; } = [];
+
+    /// <summary>
+    /// Task for handling Initialization of this model view.
+    /// Can be await'ed on by other dependents to ensure required properties are setup.
+    /// </summary>
+    public Task Initialization { get; private set; }
 
     [RelayCommand]
     private void SaveChanges()
@@ -112,17 +111,13 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
         {
             if (!property.IsBasePropertyDefinition() ||
                 _ignoredTypes.Contains(property.PropertyType.Name))
-            {
                 continue;
-            }
 
             var vm = _viewModelFactory.CreateFromProperty(property, prototype.Instance);
             vm.IsFrozen = !property.CanWrite;
 
             if (baseFields.TryGetValue(vm.Name, out var data))
-            {
                 vm.SetInheritedFields(data);
-            }
 
             Properties.Add(vm);
         }
@@ -142,9 +137,7 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
             var vm = _viewModelFactory.CreateFromField(field, prototype.Instance);
 
             if (baseFields.TryGetValue(vm.Name, out var data))
-            {
                 vm.SetInheritedFields(data);
-            }
 
             Properties.Add(vm);
         }

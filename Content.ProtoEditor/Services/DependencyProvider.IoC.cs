@@ -8,7 +8,6 @@ using Robust.Server.GameStates;
 using Robust.Server.Localization;
 using Robust.Server.Placement;
 using Robust.Server.Player;
-using Robust.Server.Prototypes;
 using Robust.Server.Reflection;
 using Robust.Server.Replays;
 using Robust.Server.Scripting;

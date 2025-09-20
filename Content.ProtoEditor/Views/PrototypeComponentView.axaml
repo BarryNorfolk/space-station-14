@@ -3,7 +3,6 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:Content.ProtoEditor.ViewModels"
-    xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
     x:DataType="vm:PrototypeComponentViewModel">
 
     <Design.DataContext>
@@ -11,12 +10,6 @@
     </Design.DataContext>
 
     <UserControl.Resources>
-        <DataTemplate x:Key="RemoveElementButton">
-            <Button
-                Command="{Binding $parent[ItemsControl]?.((vmp:ArrayPropertyViewModel)DataContext).RemoveItemCommand}"
-                CommandParameter="{Binding $parent[StackPanel].DataContext}"
-                Content="-" />
-        </DataTemplate>
     </UserControl.Resources>
 
     <Border

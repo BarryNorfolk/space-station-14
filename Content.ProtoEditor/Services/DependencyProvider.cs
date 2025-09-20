@@ -1,18 +1,16 @@
-
-using Robust.Shared.IoC;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Content.Server.Entry;
+using Robust.Server;
 using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
 using Robust.Shared.GameObjects;
+using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Reflection;
 using Robust.Shared.Serialization.Manager;
-
-using Robust.Server;
-using System.Collections.Generic;
-using System.Reflection;
-using System;
-using Content.Server.Entry;
 
 namespace Content.ProtoEditor.Services;
 
@@ -25,9 +23,9 @@ public sealed partial class DependencyProvider
     /// <summary>
     /// The collection of all known/registered dependencies and the graph between them.
     /// N.b. We can only access this here because the ProtoEditor is set to allow access for
-    ///      Robust's internals.
+    /// Robust's internals.
     /// </summary>
-    private readonly DependencyCollection _dependencyCollection = default!;
+    private readonly DependencyCollection _dependencyCollection;
 
     public DependencyProvider()
     {
@@ -57,7 +55,7 @@ public sealed partial class DependencyProvider
     /// <summary>
     /// Performs setup and initialization for all systems required for the proto editor to function.
     /// TODO: Consider splitting this out into another DI injected class that relies on the background
-    ///       worker in order to make it occur in parallel with the UI loading.
+    /// worker in order to make it occur in parallel with the UI loading.
     /// </summary>
     private void InitializeSystems()
     {
@@ -71,7 +69,7 @@ public sealed partial class DependencyProvider
         // If a config file path was passed, use it literally.
         // This ensures it's working-directory relative
         // (for people passing config file through the terminal or something).
-        // Otherwise use the one next to the executable.
+        // Otherwise, use the one next to the executable.
         var path = PathHelpers.ExecutableRelativeFile("server_config.toml");
         cfg.LoadFromFile(path); // TODO: We shouldn't need this.
 
@@ -116,8 +114,8 @@ public sealed partial class DependencyProvider
 
         var res = _dependencyCollection.Resolve<IResourceManagerInternal>();
         res.Initialize(null);
-        res.MountContentDirectory($@"../../RobustToolbox/Resources/");
-        res.MountContentDirectory($@"../../Resources/");
+        res.MountContentDirectory(@"../../RobustToolbox/Resources/");
+        res.MountContentDirectory(@"../../Resources/");
 
         var serialization = _dependencyCollection.Resolve<ISerializationManager>();
         serialization.Initialize();
@@ -127,7 +125,7 @@ public sealed partial class DependencyProvider
     /// Resolves the dependency from the known collection.
     /// </summary>
     /// <typeparam name="T">Interface type to resolve for.</typeparam>
-    /// <returns>Resolved implementration for the requested interface.</returns>
+    /// <returns>Resolved implementation for the requested interface.</returns>
     public T Resolve<T>()
     {
         return _dependencyCollection.Resolve<T>();

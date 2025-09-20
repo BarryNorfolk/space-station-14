@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Content.ProtoEditor.Services;
+using JetBrains.Annotations;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.Utility;
@@ -18,35 +18,35 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 public abstract partial class PropertyViewModel : ViewModelBase
 {
     /// <summary>
-    /// Name of this property, optional for the case where this property view model is
-    /// used in the context of an array.
-    /// </summary>
-    [ObservableProperty]
-    private string _name;
-
-    /// <summary>
-    /// Whether this property is part of an array.
-    /// </summary>
-    [ObservableProperty]
-    private bool _isArrayElement = false;
-
-    /// <summary>
-    /// Whether this property cannot be changed by the editor.
-    /// </summary>
-    [ObservableProperty]
-    private bool _isFrozen = false;
-
-    [ObservableProperty]
-    private string? _inheritedFields = null;
-
-    /// <summary>
     /// Stored reference to the member (Field or Property) information on the Prototype.
     /// </summary>
     protected readonly MemberInfo MemberInfo;
 
     protected readonly TypeCode TypeCode;
 
-    public PropertyViewModel(MemberInfo info)
+    [ObservableProperty]
+    private string? _inheritedFields;
+
+    /// <summary>
+    /// Whether this property is part of an array.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isArrayElement;
+
+    /// <summary>
+    /// Whether this property cannot be changed by the editor.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isFrozen;
+
+    /// <summary>
+    /// Name of this property, optional for the case where this property view model is
+    /// used in the context of an array.
+    /// </summary>
+    [ObservableProperty]
+    private string _name;
+
+    protected PropertyViewModel(MemberInfo info)
     {
         Name = GetName(info);
         TypeCode = GetTypeCode(info);
@@ -58,13 +58,9 @@ public abstract partial class PropertyViewModel : ViewModelBase
     protected void Save(IPrototype instance, object? value)
     {
         if (MemberInfo.MemberType == MemberTypes.Field)
-        {
             ((FieldInfo)MemberInfo).SetValue(instance, value);
-        }
         else if (MemberInfo.MemberType == MemberTypes.Property)
-        {
             ((PropertyInfo)MemberInfo).SetValue(instance, value);
-        }
     }
 
     protected static Type GetType(MemberInfo info)
@@ -90,7 +86,6 @@ public abstract partial class PropertyViewModel : ViewModelBase
     protected static string GetName(MemberInfo info)
     {
         if (info.TryGetCustomAttribute<DataFieldAttribute>(out var field) &&
-            field != null &&
             field.Tag != null)
         {
             // Tags override names of the properties
@@ -118,9 +113,10 @@ public abstract partial class PropertyViewModel : ViewModelBase
 /// <summary>
 /// Simple string view model.
 /// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
+/// <param name="info">Info about an attribute of a class.</param>
 /// <param name="value">Initial value of this property.</param>
 [ViewModelFor(typeof(string))]
+[UsedImplicitly]
 public sealed partial class StringPropertyViewModel(MemberInfo info, string? value) : PropertyViewModel(info)
 {
     /// <summary>
@@ -135,9 +131,10 @@ public sealed partial class StringPropertyViewModel(MemberInfo info, string? val
 /// <summary>
 /// Simple boolean view model.
 /// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
+/// <param name="info">Info about an attribute of a class.</param>
 /// <param name="value">Initial value of this property.</param>
 [ViewModelFor(typeof(bool))]
+[UsedImplicitly]
 public sealed partial class BoolPropertyViewModel(MemberInfo info, bool? value) : PropertyViewModel(info)
 {
     /// <summary>
@@ -149,12 +146,8 @@ public sealed partial class BoolPropertyViewModel(MemberInfo info, bool? value) 
     public override void SaveToInstance(IPrototype instance) { Save(instance, Value); }
 }
 
-/// <summary>
-/// Simple signed integer view model.
-/// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
-/// <param name="value">Initial value of this property.</param>
 [ViewModelFor([typeof(char), typeof(short), typeof(int), typeof(long)])]
+[UsedImplicitly]
 public sealed partial class IntPropertyViewModel : PropertyViewModel
 {
     /// <summary>
@@ -163,6 +156,11 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
     [ObservableProperty]
     private long _value;
 
+    /// <summary>
+    /// Simple signed integer view model.
+    /// </summary>
+    /// <param name="info">Info about an attribute of a class.</param>
+    /// <param name="value">Initial value of this property.</param>
     public IntPropertyViewModel(MemberInfo info, object value) : base(info)
     {
         Value = Convert.ToInt64(value);
@@ -193,9 +191,10 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
 /// <summary>
 /// Simple unsigned integer view model.
 /// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
+/// <param name="info">Info about an attribute of a class.</param>
 /// <param name="value">Initial value of this property.</param>
 [ViewModelFor([typeof(ushort), typeof(uint), typeof(ulong)])]
+[UsedImplicitly]
 public sealed partial class UIntPropertyViewModel(MemberInfo info, ulong value) : PropertyViewModel(info)
 {
     /// <summary>
@@ -208,7 +207,7 @@ public sealed partial class UIntPropertyViewModel(MemberInfo info, ulong value) 
     {
         switch (TypeCode)
         {
-            case TypeCode.SByte:    // 8 bit Unsigned
+            case TypeCode.SByte: // 8 bit Unsigned
                 Save(instance, Convert.ToSByte(Value));
                 break;
             case TypeCode.UInt16:
@@ -226,12 +225,8 @@ public sealed partial class UIntPropertyViewModel(MemberInfo info, ulong value) 
     }
 }
 
-/// <summary>
-/// Simple enum view model.
-/// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
-/// <param name="value">Initial value of this property.</param>
 [ViewModelFor(typeof(Enum))]
+[UsedImplicitly]
 public sealed partial class EnumPropertyViewModel : PropertyViewModel
 {
     /// <summary>
@@ -241,15 +236,20 @@ public sealed partial class EnumPropertyViewModel : PropertyViewModel
     private string? _value;
 
     /// <summary>
-    /// Possible options for this Enum.
+    /// Simple enum view model.
     /// </summary>
-    public ObservableCollection<string> Options { get; }
-
+    /// <param name="info">Info about an attribute of a class.</param>
+    /// <param name="value">Initial value of this property.</param>
     public EnumPropertyViewModel(MemberInfo info, Enum? value) : base(info)
     {
         Value = value?.ToString() ?? "None";
-        Options = value != null ? new(Enum.GetNames(value.GetType())) : [];
+        Options = value != null ? new ObservableCollection<string>(Enum.GetNames(value.GetType())) : [];
     }
+
+    /// <summary>
+    /// Possible options for this Enum.
+    /// </summary>
+    public ObservableCollection<string> Options { get; }
 
     public override void SaveToInstance(IPrototype instance)
     {
@@ -268,10 +268,11 @@ public sealed partial class EnumPropertyViewModel : PropertyViewModel
 /// Fallback property view model, in the case where no other view models can support/render
 /// the created type.
 /// N.b. The lack of ViewModelFor is intentional, as we don't want this view model to be used
-///      implicitly.
+/// implicitly.
 /// </summary>
-/// <param name="name">Name of this property, nullable if part of an array.</param>
+/// <param name="info">Info about an attribute of a class.</param>
 /// <param name="value">Initial value of this property.</param>
+[UsedImplicitly]
 public sealed partial class FallbackPropertyViewModel(MemberInfo info, string value) : PropertyViewModel(info)
 {
     /// <summary>

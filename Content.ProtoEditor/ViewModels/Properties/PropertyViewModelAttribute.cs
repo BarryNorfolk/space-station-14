@@ -8,11 +8,6 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class ViewModelForAttribute : Attribute
 {
-    /// <summary>
-    /// The supported types for this attribute.
-    /// </summary>
-    public Type[] TargetTypes { get; }
-
     public ViewModelForAttribute(Type[] types)
     {
         TargetTypes = types;
@@ -22,5 +17,9 @@ public sealed class ViewModelForAttribute : Attribute
     {
         TargetTypes = [type];
     }
-}
 
+    /// <summary>
+    /// The supported types for this attribute.
+    /// </summary>
+    public Type[] TargetTypes { get; }
+}
