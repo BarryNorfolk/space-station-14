@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
+             x:Class="Content.ProtoEditor.Views.Properties.ArrayPropertyView"
+             x:DataType="vmp:ArrayPropertyViewModel">
+    <Expander
+        Width="400"
+        VerticalAlignment="Top"
+        Header="{Binding Name}">
+        <StackPanel Orientation="Vertical">
+            <ItemsControl ItemsSource="{Binding Elements}" />
+            <Button Command="{Binding AddItemCommand}" Content="Add Item" />
+        </StackPanel>
+    </Expander>
+</UserControl>

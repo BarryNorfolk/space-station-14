@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Content.ProtoEditor.Services;
 using Content.IntegrationTests;
 using Content.ProtoEditor.ViewModels.Properties;
+using Avalonia.Controls.Templates;
+using System;
+using Avalonia.Controls;
 
 namespace Content.ProtoEditor;
 
@@ -42,6 +45,8 @@ public sealed partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+
+        GenerateTemplates();
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -70,6 +75,27 @@ public sealed partial class App : Application
         foreach (var plugin in dataValidationPluginsToRemove)
         {
             BindingPlugins.DataValidators.Remove(plugin);
+        }
+    }
+
+    private void GenerateTemplates()
+    {
+        var assembly = typeof(App).Assembly;
+
+        var viewModels = assembly.GetTypes()
+            .Where(t => typeof(PropertyViewModel).IsAssignableFrom(t) && !t.IsAbstract);
+
+        foreach (var vmType in viewModels)
+        {
+            var viewTypeName = vmType.FullName!.Replace("ViewModels", "Views").Replace("ViewModel", "View");
+            var viewType = assembly.GetType(viewTypeName);
+
+            if (viewType is null)
+                continue; // Skip if no matching view
+
+            var template = new FuncDataTemplate(vmType, (_, _) => (Control)Activator.CreateInstance(viewType)!);
+
+            DataTemplates.Add(template);
         }
     }
 }
