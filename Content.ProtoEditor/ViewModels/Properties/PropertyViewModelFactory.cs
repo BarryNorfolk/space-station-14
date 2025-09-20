@@ -22,15 +22,13 @@ public sealed class PropertyViewModelFactory
         foreach (var type in modelTypes)
         {
             var attr = type.GetCustomAttribute<ViewModelForAttribute>();
-            if (attr != null)
-            {
-                foreach (var supportedType in attr.TargetTypes)
-                {
-                    if (_viewModelRegistry.ContainsKey(supportedType))
-                        throw new Exception($"Already registered a view model for {supportedType}");
+            if (attr == null)
+                continue;
 
-                    _viewModelRegistry[supportedType] = type;
-                }
+            foreach (var supportedType in attr.TargetTypes)
+            {
+                if (!_viewModelRegistry.TryAdd(supportedType, type))
+                    throw new Exception($"Already registered a view model for {supportedType}");
             }
         }
     }
@@ -48,14 +46,14 @@ public sealed class PropertyViewModelFactory
     {
         List<PropertyViewModel> viewModels = [];
 
-        if (GetValue(info, instance) is IEnumerable elements)
+        if (GetValue(info, instance) is not IEnumerable elements)
+            return new ArrayPropertyViewModel(info, arrayType, viewModels, OnAddArrayItem);
+
+        foreach (var item in elements)
         {
-            foreach (var item in elements)
-            {
-                var viewModel = MakeViewModel(info, arrayType, item); // TODO: Figure this bit out for saving
-                viewModel.IsArrayElement = true;
-                viewModels.Add(viewModel);
-            }
+            var viewModel = MakeViewModel(info, arrayType, item); // TODO: Figure this bit out for saving
+            viewModel.IsArrayElement = true;
+            viewModels.Add(viewModel);
         }
 
         return new ArrayPropertyViewModel(info, arrayType, viewModels, OnAddArrayItem);
@@ -109,7 +107,7 @@ public sealed class PropertyViewModelFactory
             if (type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 var genericTypes = type.GetGenericArguments();
-                if (genericTypes.Length == 0 || genericTypes.First() == null)
+                if (genericTypes.Length == 0)
                     return new FallbackPropertyViewModel(info, ""); // No idea what this is, maybe log an error?
 
                 return CreatePropertyArray(info, genericTypes.First(), instance);
