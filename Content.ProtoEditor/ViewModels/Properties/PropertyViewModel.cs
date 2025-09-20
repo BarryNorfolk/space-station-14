@@ -44,6 +44,13 @@ public abstract partial class PropertyViewModel : ViewModelBase
     [ObservableProperty]
     private string _name;
 
+    /// <summary>
+    /// Optional Tooltip for showing exact type information to the user when hovering
+    /// the name of the field.
+    /// </summary>
+    [ObservableProperty]
+    private string? _tooltip = null;
+
     protected PropertyViewModel(MemberInfo info)
     {
         Name = GetName(info);

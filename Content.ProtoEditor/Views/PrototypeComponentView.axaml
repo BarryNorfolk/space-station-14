@@ -32,7 +32,8 @@
                                     Margin="0,0,5,0"
                                     VerticalAlignment="Center"
                                     IsVisible="{Binding !IsArrayElement}"
-                                    Text="{Binding Name}" />
+                                    Text="{Binding Name}"
+                                    ToolTip.Tip="{Binding Tooltip}" />
 
                                 <PathIcon
                                     Grid.Column="1"

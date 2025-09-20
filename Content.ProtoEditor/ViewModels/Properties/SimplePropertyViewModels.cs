@@ -61,13 +61,29 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
     public IntPropertyViewModel(MemberInfo info, object value) : base(info)
     {
         Value = Convert.ToInt64(value);
+
+        switch (TypeCode)
+        {
+            case TypeCode.SByte:
+                Tooltip = string.Format("An 8-bit integer");
+                break;
+            case TypeCode.Int16:
+                Tooltip = string.Format("A 16-bit integer");
+                break;
+            case TypeCode.Int32:
+                Tooltip = string.Format("A 32-bit integer");
+                break;
+            case TypeCode.Int64:
+                Tooltip = string.Format("A 64-bit integer");
+                break;
+        }
     }
 
     public override void SaveToInstance(IPrototype instance)
     {
         switch (TypeCode)
         {
-            case TypeCode.Char:
+            case TypeCode.SByte:
                 Save(instance, Convert.ToChar(Value));
                 break;
             case TypeCode.Int16:
@@ -85,36 +101,57 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
     }
 }
 
-/// <summary>
-/// Simple unsigned integer view model.
-/// </summary>
-/// <param name="info">Info about an attribute of a class.</param>
-/// <param name="value">Initial value of this property.</param>
 [ViewModelFor([typeof(ushort), typeof(uint), typeof(ulong)])]
 [UsedImplicitly]
-public sealed partial class UIntPropertyViewModel(MemberInfo info, ulong value) : PropertyViewModel(info)
+public sealed partial class UIntPropertyViewModel : PropertyViewModel
 {
     /// <summary>
     /// Current value of this property.
     /// </summary>
     [ObservableProperty]
-    private ulong _value = value;
+    private ulong _value;
+
+    /// <summary>
+    /// Simple unsigned integer view model.
+    /// </summary>
+    /// <param name="info">Info about an attribute of a class.</param>
+    /// <param name="value">Initial value of this property.</param>
+    public UIntPropertyViewModel(MemberInfo info, object value) : base(info)
+    {
+        Value = Convert.ToUInt64(value);
+
+        switch (TypeCode)
+        {
+            case TypeCode.Byte:
+                Tooltip = string.Format("An 8-bit unsigned integer");
+                break;
+            case TypeCode.UInt16:
+                Tooltip = string.Format("A 16-bit unsigned integer");
+                break;
+            case TypeCode.UInt32:
+                Tooltip = string.Format("A 32-bit unsigned integer");
+                break;
+            case TypeCode.UInt64:
+                Tooltip = string.Format("A 64-bit unsigned integer");
+                break;
+        }
+    }
 
     public override void SaveToInstance(IPrototype instance)
     {
         switch (TypeCode)
         {
-            case TypeCode.SByte: // 8 bit Unsigned
+            case TypeCode.Byte: // 8 bit Unsigned
                 Save(instance, Convert.ToSByte(Value));
                 break;
             case TypeCode.UInt16:
                 Save(instance, Convert.ToUInt16(Value));
                 break;
             case TypeCode.UInt32:
-                Save(instance, Convert.ToInt32(Value));
+                Save(instance, Convert.ToUInt32(Value));
                 break;
             case TypeCode.UInt64:
-                Save(instance, Convert.ToInt64(Value));
+                Save(instance, Convert.ToUInt64(Value));
                 break;
             default:
                 throw new NotImplementedException();
