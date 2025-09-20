@@ -13,5 +13,6 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Content.ProtoEditor/Icons.axaml" />
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
     </Application.Styles>
 </Application>
