@@ -2,9 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
              x:Class="Content.ProtoEditor.Views.Properties.ColorPropertyView"
+             xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
              x:DataType="vmp:ColorPropertyViewModel">
-    <StackPanel>
-        <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+    <StackPanel Orientation="Horizontal">
+        <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
         <ColorPicker Color="{Binding SelectedColor, Mode=TwoWay}" />
     </StackPanel>
 </UserControl>

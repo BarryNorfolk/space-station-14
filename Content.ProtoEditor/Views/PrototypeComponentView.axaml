@@ -9,9 +9,6 @@
         <vm:PrototypeComponentViewModel />
     </Design.DataContext>
 
-    <UserControl.Resources>
-    </UserControl.Resources>
-
     <Border
         x:Name="ProtoList"
         BorderBrush="Black"

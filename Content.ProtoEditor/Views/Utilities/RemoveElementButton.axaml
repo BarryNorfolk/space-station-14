@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
+             x:Class="Content.ProtoEditor.Views.Utilities.RemoveElementButton">
+    <!-- Data expected to be bound to a PropertyViewModel -->
+    <Button
+        Command="{Binding $parent[ItemsControl]?.((vmp:ArrayPropertyViewModel)DataContext).RemoveItemCommand}"
+        CommandParameter="{Binding $parent[StackPanel].DataContext}"
+        Content="-" />
+</UserControl>

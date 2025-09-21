@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
+    xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
     x:DataType="vmp:UIntPropertyViewModel">
 
-    <!-- RemoveElementButton should be injected in the main view -->
-    <StackPanel>
-        <ContentControl ContentTemplate="{StaticResource RemoveElementButton}" IsVisible="{Binding IsArrayElement}" />
+    <StackPanel Orientation="Horizontal">
+        <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
         <NumericUpDown Value="{Binding Value, Mode=TwoWay}" />
     </StackPanel>
 </UserControl>
