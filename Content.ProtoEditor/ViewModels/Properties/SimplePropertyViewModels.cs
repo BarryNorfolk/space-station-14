@@ -86,24 +86,23 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
     /// </summary>
     /// <param name="info">Info about an attribute of a class.</param>
     /// <param name="value">Initial value of this property.</param>
-    public IntPropertyViewModel(MemberInfo info, object value) : base(info)
-
+    public IntPropertyViewModel(MemberInfo info, long value) : base(info)
     {
         Value = Convert.ToInt64(value);
 
         switch (TypeCode)
         {
             case TypeCode.SByte:
-                Tooltip = string.Format("An 8-bit integer");
+                Tooltip.Add("An 8-bit integer");
                 break;
             case TypeCode.Int16:
-                Tooltip = string.Format("A 16-bit integer");
+                Tooltip.Add("A 16-bit integer");
                 break;
             case TypeCode.Int32:
-                Tooltip = string.Format("A 32-bit integer");
+                Tooltip.Add("A 32-bit integer");
                 break;
             case TypeCode.Int64:
-                Tooltip = string.Format("A 64-bit integer");
+                Tooltip.Add("A 64-bit integer");
                 break;
         }
     }
@@ -178,16 +177,16 @@ public sealed partial class UIntPropertyViewModel : PropertyViewModel
         switch (TypeCode)
         {
             case TypeCode.Byte:
-                Tooltip = string.Format("An 8-bit unsigned integer");
+                Tooltip.Add("An 8-bit unsigned integer");
                 break;
             case TypeCode.UInt16:
-                Tooltip = string.Format("A 16-bit unsigned integer");
+                Tooltip.Add("A 16-bit unsigned integer");
                 break;
             case TypeCode.UInt32:
-                Tooltip = string.Format("A 32-bit unsigned integer");
+                Tooltip.Add("A 32-bit unsigned integer");
                 break;
             case TypeCode.UInt64:
-                Tooltip = string.Format("A 64-bit unsigned integer");
+                Tooltip.Add("A 64-bit unsigned integer");
                 break;
         }
     }

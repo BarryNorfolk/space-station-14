@@ -33,7 +33,7 @@ public sealed class PropertyViewModelFactory
         }
     }
 
-    public PropertyViewModel MakeViewModel(MemberInfo info, Type objectType, object? value)
+    private PropertyViewModel MakeViewModel(MemberInfo info, Type objectType, object? value)
     {
         if (_viewModelRegistry.TryGetValue(objectType, out var implType))
             return (PropertyViewModel)Activator.CreateInstance(implType, info, value)!;
@@ -42,7 +42,7 @@ public sealed class PropertyViewModelFactory
         return new FallbackPropertyViewModel(info, fallbackType);
     }
 
-    public ArrayPropertyViewModel CreatePropertyArray(MemberInfo info, Type arrayType, IPrototype instance)
+    private ArrayPropertyViewModel CreatePropertyArray(MemberInfo info, Type arrayType, IPrototype instance)
     {
         List<PropertyViewModel> viewModels = [];
 
@@ -58,7 +58,6 @@ public sealed class PropertyViewModelFactory
 
         return new ArrayPropertyViewModel(info, arrayType, viewModels, OnAddArrayItem);
     }
-
 
     private static object? GetValue(MemberInfo info, IPrototype instance)
     {
@@ -104,7 +103,16 @@ public sealed class PropertyViewModelFactory
 
         if (type.IsGenericType)
         {
-            if (type.GetGenericTypeDefinition() == typeof(List<>))
+            var generic = type.GetGenericTypeDefinition();
+            if (generic == typeof(Nullable<>))
+            {
+                // Unwrap the nullable to its more basic type and recurse into it
+                var vm = CreatePropertyInternal(info, type.GetUnderlyingType()!, instance);
+                vm.IsNullable = true;
+                return vm;
+            }
+
+            if (generic == typeof(List<>))
             {
                 var genericTypes = type.GetGenericArguments();
                 if (genericTypes.Length == 0)
@@ -113,7 +121,7 @@ public sealed class PropertyViewModelFactory
                 return CreatePropertyArray(info, genericTypes.First(), instance);
             }
 
-            if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            if (generic == typeof(Dictionary<,>))
             {
                 // TODO: Dictionary views
             }

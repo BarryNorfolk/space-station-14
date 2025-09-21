@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text;
@@ -50,8 +51,13 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
     /// Optional Tooltip for showing exact type information to the user when hovering
     /// the name of the field.
     /// </summary>
+    public ObservableCollection<string> Tooltip { get; } = [];
+
+    /// <summary>
+    /// Whether this field is a nullable
+    /// </summary>
     [ObservableProperty]
-    private string? _tooltip = null;
+    private bool _isNullable = false;
 
     #region INotifyDataErrorInfo impl
 
@@ -89,6 +95,15 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
         MemberInfo = info;
     }
 
+    partial void OnIsNullableChanged(bool value)
+    {
+        const string nullTooltip = "This is a nullable type"; // TODO: Localize?
+        if (value)
+            Tooltip.Add(nullTooltip);
+        else
+            Tooltip.Remove(nullTooltip);
+    }
+
     public abstract void SaveToInstance(IPrototype instance);
 
     protected void Save(IPrototype instance, object? value)
@@ -109,7 +124,7 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
         };
     }
 
-    protected static TypeCode GetTypeCode(MemberInfo info)
+    private static TypeCode GetTypeCode(MemberInfo info)
     {
         return info.MemberType switch
         {
@@ -119,7 +134,7 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
         };
     }
 
-    protected static string GetName(MemberInfo info)
+    private static string GetName(MemberInfo info)
     {
         if (info.TryGetCustomAttribute<DataFieldAttribute>(out var field) &&
             field.Tag != null)
