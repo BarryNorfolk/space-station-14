@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using JetBrains.Annotations;
@@ -54,11 +57,37 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
     private long _value;
 
     /// <summary>
+    /// Raised when Value changes
+    /// </summary>
+    /// <param name="value">The value set by the user.</param>
+    partial void OnValueChanged(long value)
+    {
+        ClearErrors(nameof(Value));
+        switch (TypeCode)
+        {
+            case TypeCode.SByte:
+                if (value is < sbyte.MinValue or > sbyte.MaxValue)
+                    AddError($"Value must be between {sbyte.MinValue} and {sbyte.MaxValue}", nameof(Value));
+                break;
+            case TypeCode.Int16:
+                if (value is < short.MinValue or > short.MaxValue)
+                    AddError($"Value must be between {short.MinValue} and {short.MaxValue}", nameof(Value));
+                break;
+            case TypeCode.Int32:
+                if (value is < int.MinValue or > int.MaxValue)
+                    AddError($"Value must be between {int.MinValue} and {int.MaxValue}", nameof(Value));
+                break;
+            // We can't check int64 since the value we're holding IS an int64
+        }
+    }
+
+    /// <summary>
     /// Simple signed integer view model.
     /// </summary>
     /// <param name="info">Info about an attribute of a class.</param>
     /// <param name="value">Initial value of this property.</param>
     public IntPropertyViewModel(MemberInfo info, object value) : base(info)
+
     {
         Value = Convert.ToInt64(value);
 
@@ -104,12 +133,38 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
 [ViewModelFor([typeof(ushort), typeof(uint), typeof(ulong)])]
 [UsedImplicitly]
 public sealed partial class UIntPropertyViewModel : PropertyViewModel
+
 {
     /// <summary>
     /// Current value of this property.
     /// </summary>
     [ObservableProperty]
     private ulong _value;
+
+    /// <summary>
+    /// Raised when Value changes
+    /// </summary>
+    /// <param name="value">The value set by the user.</param>
+    partial void OnValueChanged(ulong value)
+    {
+        ClearErrors(nameof(Value));
+        switch (TypeCode)
+        {
+            case TypeCode.Byte:
+                if (value > byte.MaxValue)
+                    AddError($"Value must be between 0 and {byte.MaxValue}", nameof(Value));
+                break;
+            case TypeCode.UInt16:
+                if (value > ushort.MaxValue)
+                    AddError($"Value must be between 0 and {ushort.MaxValue}", nameof(Value));
+                break;
+            case TypeCode.UInt32:
+                if (value > uint.MaxValue)
+                    AddError($"Value must be between 0 and {uint.MaxValue}", nameof(Value));
+                break;
+            // We can't check uint64 since the value we're holding IS an uint64
+        }
+    }
 
     /// <summary>
     /// Simple unsigned integer view model.
@@ -162,6 +217,7 @@ public sealed partial class UIntPropertyViewModel : PropertyViewModel
 [ViewModelFor(typeof(Enum))]
 [UsedImplicitly]
 public sealed partial class EnumPropertyViewModel : PropertyViewModel
+
 {
     /// <summary>
     /// Current value of this property.

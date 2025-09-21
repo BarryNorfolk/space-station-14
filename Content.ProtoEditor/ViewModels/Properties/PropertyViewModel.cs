@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,7 +15,7 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 /// <summary>
 /// Base ViewModel for all properties/fields that are part of a prototype
 /// </summary>
-public abstract partial class PropertyViewModel : ViewModelBase
+public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErrorInfo
 {
     /// <summary>
     /// Stored reference to the member (Field or Property) information on the Prototype.
@@ -50,6 +52,35 @@ public abstract partial class PropertyViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     private string? _tooltip = null;
+
+    #region INotifyDataErrorInfo impl
+
+    /// <summary>
+    /// List of any errors
+    /// </summary>
+    private readonly List<string> _errors = [];
+
+    protected void AddError(string error, string propertyName)
+    {
+        _errors.Add(error);
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+    }
+
+    protected void ClearErrors(string propertyName)
+    {
+        _errors.Clear();
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+    }
+
+    public IEnumerable GetErrors(string? propertyName)
+    {
+        return propertyName != null && HasErrors ? _errors : [];
+    }
+
+    public bool HasErrors => _errors.Count != 0;
+    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+    #endregion
 
     protected PropertyViewModel(MemberInfo info)
     {
