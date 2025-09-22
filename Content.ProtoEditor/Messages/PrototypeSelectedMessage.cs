@@ -14,3 +14,15 @@ public sealed class PrototypeSelectedMessage(PrototypeViewModel? prototype)
     /// </summary>
     public PrototypeViewModel? Prototype = prototype;
 }
+
+/// <summary>
+/// Message raised when an EntProtoId control requests us to show the linked Prototype.
+/// </summary>
+/// <param name="protoId">The prototype id that is selected.</param>
+public sealed class PrototypeIdSelectedMessage(string protoId)
+{
+    /// <summary>
+    /// The ID of the prototype that has been selected
+    /// </summary>
+    public string ProtoId = protoId;
+}

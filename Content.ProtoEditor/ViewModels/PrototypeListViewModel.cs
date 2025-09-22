@@ -72,6 +72,9 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
 
         _listFilterKind = _defaultAll;
 
+        MessageBus.Current.Listen<PrototypeIdSelectedMessage>()
+            .Subscribe(x => OnPrototypeIdSelected(x.ProtoId));
+
         Initialization = InitializeAsync();
     }
 
@@ -117,6 +120,19 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     partial void OnSelectedPrototypeChanged(PrototypeViewModel? value)
     {
         MessageBus.Current.SendMessage(new PrototypeSelectedMessage(value));
+    }
+
+    /// <summary>
+    /// Handles when a user control requests us to show a particular prototype.
+    /// </summary>
+    /// <param name="protoId">The prototype ID to show.</param>
+    private void OnPrototypeIdSelected(string protoId)
+    {
+        var prototype = _prototypeProvider.GetPrototypeModel(protoId);
+        if (!prototype.HasValue)
+            return; // Failed to find anything
+
+        MessageBus.Current.SendMessage(new PrototypeSelectedMessage(prototype.Value));
     }
 
     /// <summary>

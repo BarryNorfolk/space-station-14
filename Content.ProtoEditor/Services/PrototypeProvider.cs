@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Content.ProtoEditor.Models;
 using Content.ProtoEditor.ViewModels;
 using DynamicData;
+using DynamicData.Kernel;
 using Robust.Shared.Prototypes;
 
 namespace Content.ProtoEditor.Services;
@@ -76,6 +77,16 @@ public sealed class PrototypeProvider
     public SourceCache<PrototypeViewModel, int> GetPrototypeModels()
     {
         return _prototypes;
+    }
+
+    /// <summary>
+    /// Tries to resolve a prototype ID to an existing, loaded, view model.
+    /// </summary>
+    /// <param name="id">The prototype ID to search for.</param>
+    /// <returns>The found view model, otherwise null.</returns>
+    public Optional<PrototypeViewModel> GetPrototypeModel(string id)
+    {
+        return _prototypes.Lookup(id.GetHashCode());
     }
 
     /// <summary>
