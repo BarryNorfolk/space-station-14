@@ -47,7 +47,7 @@
                                     Width="25"
                                     Height="25"
                                     Margin="5,0,5,0"
-                                    Data="{StaticResource property_frozen}"
+                                    Data="{StaticResource PropertyFrozen}"
                                     IsVisible="{Binding IsFrozen}"
                                     ToolTip.Tip="This property is frozen and cannot be written to." />
 
@@ -56,7 +56,7 @@
                                     Width="25"
                                     Height="25"
                                     Margin="5,0,5,0"
-                                    Data="{StaticResource property_inherited}"
+                                    Data="{StaticResource PropertyInherited}"
                                     IsVisible="{Binding InheritedFields, Converter={x:Static ObjectConverters.IsNotNull}}"
                                     ToolTip.Tip="{Binding InheritedFields}" />
 
