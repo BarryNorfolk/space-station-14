@@ -2,13 +2,8 @@
     x:Class="Content.ProtoEditor.Views.Properties.BoolPropertyView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
     xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
     x:DataType="vmp:BoolPropertyViewModel">
 
-    <!-- RemoveElementButton should be injected in the main view -->
-    <StackPanel Orientation="Horizontal">
-        <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
-        <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
-    </StackPanel>
+    <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
 </UserControl>

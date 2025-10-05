@@ -4,12 +4,15 @@
              x:Class="Content.ProtoEditor.Views.Properties.ArrayPropertyView"
              x:DataType="vmp:ArrayPropertyViewModel">
     <Expander
-        Width="400"
+        Width="300"
         VerticalAlignment="Top"
-        Header="{Binding Name}">
-        <StackPanel Orientation="Vertical">
-            <ItemsControl ItemsSource="{Binding Elements}" />
-            <Button Command="{Binding AddItemCommand}" Content="Add Item" />
-        </StackPanel>
+        HorizontalAlignment="Stretch"
+        VerticalContentAlignment="Center"
+        Header="{Binding Elements.Count, StringFormat='[{0} Elements]'}"
+        HorizontalContentAlignment="Stretch">
+        <Grid RowDefinitions="Auto, *">
+            <Button HorizontalAlignment="Center" Command="{Binding AddItemCommand}" Content="Add Item" />
+            <ItemsControl Grid.Row="1" Margin="0 2" ItemsSource="{Binding Elements}" />
+        </Grid>
     </Expander>
 </UserControl>

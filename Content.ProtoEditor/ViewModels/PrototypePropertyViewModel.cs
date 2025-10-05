@@ -8,13 +8,11 @@ using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels.Properties;
 using ReactiveUI;
-using Robust.Shared.Analyzers;
 using Robust.Shared.Utility;
 
 namespace Content.ProtoEditor.ViewModels;
 
-// TODO: Rename this as it's not really a component view
-public sealed partial class PrototypeComponentViewModel : ViewModelBase
+public sealed partial class PrototypePropertyViewModel : ViewModelBase
 {
     /// <summary>
     /// Simple list of types to ignore when processing fields and properties of a prototype.
@@ -47,7 +45,7 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
     private PrototypeViewModel? _selectedPrototype;
 
-    public PrototypeComponentViewModel(IPrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
+    public PrototypePropertyViewModel(IPrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
     {
         _prototypeProvider = prototypeProvider;
         _viewModelFactory = viewModelFactory;

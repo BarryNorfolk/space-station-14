@@ -1,34 +1,35 @@
 <UserControl
-    x:Class="Content.ProtoEditor.Views.PrototypeComponentView"
+    x:Class="Content.ProtoEditor.Views.PrototypePropertyView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:Content.ProtoEditor.ViewModels"
-    x:DataType="vm:PrototypeComponentViewModel"
+    x:DataType="vm:PrototypePropertyViewModel"
     Design.Height="500"
-    Design.Width="800">
+    Design.Width="600">
 
-    <Border
-        x:Name="ProtoList"
-        BorderBrush="Black"
-        BorderThickness="1">
+    <DockPanel LastChildFill="True">
+        <TextBlock DockPanel.Dock="Top" Margin=" 5">
+            <TextBlock.Text>
+                <MultiBinding StringFormat=' {0} [{1}]'>
+                    <Binding Path="SelectedName" />
+                    <Binding Path="SelectedKind" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        <Button Margin="5" DockPanel.Dock="Bottom" Command="{Binding SaveChangesCommand}" Content="Save Changes" />
         <ScrollViewer>
             <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
-                    <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
-                    <TextBlock Text="{Binding SelectedName}" />
-                    <TextBlock Text="{Binding SelectedKind}" />
-                </StackPanel>
-                <TextBlock Text="{Binding Parents}" />
                 <ItemsControl ItemsSource="{Binding Properties}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="175,35,35,*">
+                            <Grid ColumnDefinitions="175,35,35,*" Margin="0 1 0 2">
                                 <TextBlock
                                     Grid.Column="0"
-                                    Margin="0,0,5,0"
-                                    VerticalAlignment="Center"
+                                    Margin="0,8,2,0"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Right"
                                     IsVisible="{Binding !IsArrayElement}"
-                                    Text="{Binding Name}">
+                                    Text="{Binding UiName}">
                                     <!-- TODO: Make this not show a bubble when the tooltip is empty -->
                                     <ToolTip.Tip>
                                         <ItemsControl ItemsSource="{Binding Tooltip}">
@@ -43,8 +44,8 @@
 
                                 <PathIcon
                                     Grid.Column="1"
-                                    Width="25"
-                                    Height="25"
+                                    Width="20"
+                                    Height="20"
                                     Margin="5,0,5,0"
                                     Data="{StaticResource PropertyFrozen}"
                                     IsVisible="{Binding IsFrozen}"
@@ -52,8 +53,8 @@
 
                                 <PathIcon
                                     Grid.Column="2"
-                                    Width="25"
-                                    Height="25"
+                                    Width="20"
+                                    Height="20"
                                     Margin="5,0,5,0"
                                     Data="{StaticResource PropertyInherited}"
                                     IsVisible="{Binding InheritedFields, Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -61,6 +62,7 @@
 
                                 <ContentControl
                                     Grid.Column="3"
+                                    Margin="0 0 5 0"
                                     Content="{Binding}"
                                     IsEnabled="{Binding !IsFrozen}" />
                             </Grid>
@@ -69,5 +71,5 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
-    </Border>
+    </DockPanel>
 </UserControl>

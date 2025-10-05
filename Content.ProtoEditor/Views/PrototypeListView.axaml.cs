@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Content.ProtoEditor.Designer;
 using Content.ProtoEditor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,9 +13,18 @@ public sealed partial class PrototypeListView : UserControl
 {
     public PrototypeListView()
     {
-        InitializeComponent();
+        if (Design.IsDesignMode)
+        {
+            var prototypes = new DesignPrototypeProvider();
+            var vm = new PrototypeListViewModel(prototypes);
+            Design.SetDataContext(this, vm);
+        }
+        else
+        {
+            var app = Application.Current as App;
+            DataContext = app!.Services.GetRequiredService<PrototypeListViewModel>();
+        }
 
-        var app = Application.Current as App;
-        DataContext = app!.Services.GetRequiredService<PrototypeListViewModel>();
+        InitializeComponent();
     }
 }

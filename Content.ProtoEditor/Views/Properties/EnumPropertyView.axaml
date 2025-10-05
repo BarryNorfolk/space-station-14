@@ -6,8 +6,10 @@
     xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
     x:DataType="vmp:EnumPropertyViewModel">
 
-    <StackPanel Orientation="Horizontal">
+    <Grid ColumnDefinitions="Auto, *">
         <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
-        <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Value, Mode=TwoWay}" />
-    </StackPanel>
+        <ComboBox Grid.Column="1" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch"
+                  ItemsSource="{Binding Options}"
+                  SelectedItem="{Binding Value, Mode=TwoWay}" />
+    </Grid>
 </UserControl>

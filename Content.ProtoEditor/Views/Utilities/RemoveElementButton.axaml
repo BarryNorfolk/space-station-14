@@ -6,6 +6,7 @@
     <!-- Data expected to be bound to a PropertyViewModel -->
     <Button
         Command="{Binding $parent[ItemsControl]?.((vmp:ArrayPropertyViewModel)DataContext).RemoveItemCommand}"
-        CommandParameter="{Binding $parent[StackPanel].DataContext}"
+        CommandParameter="{Binding $parent[Grid].DataContext}"
+        Margin="0 0 5 0"
         Content="-" />
 </UserControl>

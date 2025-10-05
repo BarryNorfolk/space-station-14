@@ -30,7 +30,7 @@ public sealed class App : Application
 
         collection.AddSingleton<MainWindowViewModel>();
         collection.AddSingleton<PrototypeListViewModel>();
-        collection.AddSingleton<PrototypeComponentViewModel>();
+        collection.AddSingleton<PrototypePropertyViewModel>();
 
         Services = collection.BuildServiceProvider();
     }

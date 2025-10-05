@@ -10,22 +10,21 @@ namespace Content.ProtoEditor.Views;
 /// <summary>
 /// View for showing the details of a selected prototype, and allow for editing.
 /// </summary>
-public sealed partial class PrototypeComponentView : UserControl
+public sealed partial class PrototypePropertyView : UserControl
 {
-    public PrototypeComponentView()
+    public PrototypePropertyView()
     {
         if (Design.IsDesignMode)
         {
             var prototypes = new DesignPrototypeProvider();
-            var dummy = prototypes.GetPrototypeModel("DummyPrototype");
-            var vm = new PrototypeComponentViewModel(prototypes, new PropertyViewModelFactory());
-            vm.SelectPrototype(dummy.Value);
+            var vm = new PrototypePropertyViewModel(prototypes, new PropertyViewModelFactory());
+            vm.SelectPrototype(prototypes.GetDummyPrototype());
             Design.SetDataContext(this, vm);
         }
         else
         {
             var app = Application.Current as App;
-            DataContext = app!.Services.GetRequiredService<PrototypeComponentViewModel>();
+            DataContext = app!.Services.GetRequiredService<PrototypePropertyViewModel>();
         }
 
         InitializeComponent();

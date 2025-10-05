@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.Prototypes;
 
 namespace Content.ProtoEditor.ViewModels.Properties;
@@ -77,7 +79,8 @@ public sealed partial class IntPropertyViewModel : PropertyViewModel
                 if (value is < int.MinValue or > int.MaxValue)
                     AddError($"Value must be between {int.MinValue} and {int.MaxValue}", nameof(Value));
                 break;
-            // We can't check int64 since the value we're holding IS an int64
+            case TypeCode.Int64:
+                break; // We can't check int64 since the value we're holding IS an int64
         }
     }
 
@@ -161,7 +164,11 @@ public sealed partial class UIntPropertyViewModel : PropertyViewModel
                 if (value > uint.MaxValue)
                     AddError($"Value must be between 0 and {uint.MaxValue}", nameof(Value));
                 break;
-            // We can't check uint64 since the value we're holding IS an uint64
+            case TypeCode.UInt64:
+                // We can't check uint64 since the value we're holding IS an uint64
+                break;
+            default:
+                throw new NotImplementedException();
         }
     }
 
@@ -188,6 +195,8 @@ public sealed partial class UIntPropertyViewModel : PropertyViewModel
             case TypeCode.UInt64:
                 Tooltip.Add("A 64-bit unsigned integer");
                 break;
+            default:
+                throw new NotImplementedException();
         }
     }
 
@@ -242,14 +251,9 @@ public sealed partial class EnumPropertyViewModel : PropertyViewModel
 
     public override void SaveToInstance(IPrototype instance)
     {
-        if (Enum.TryParse(GetType(), Value, out var obj))
-            Save(instance, obj);
-        else
-        {
-            // TODO: What's a "default" value for an Enum look like here?
-            //       For the case where the string value is None.
-            Save(instance, null);
-        }
+        // TODO: What's a "default" value for an Enum look like here?
+        //       For the case where the string value is None.
+        Save(instance, Enum.TryParse(GetType(), Value, out var obj) ? obj : null);
     }
 }
 

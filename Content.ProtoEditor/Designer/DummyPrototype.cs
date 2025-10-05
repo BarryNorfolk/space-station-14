@@ -15,16 +15,40 @@ public enum DummyEnum
 }
 
 /// <summary>
+/// Dummy class for showing a fallback field in the design view/preview for Avalonia
+/// </summary>
+public sealed class ForcedFallback
+{
+    public string Value = "Fallback";
+}
+
+public abstract class DummyBase
+{
+    // ReSharper disable once InconsistentNaming
+    public string camelCasedField = "camelCase to Camel Case";
+    public int IntegerField = 0;
+    public uint UnsignedIntegerField = 0;
+    public bool BooleanField = true;
+    public ForcedFallback FallbackField = new();
+    public string StringField = "StringField";
+    public string? NullableStringField = null;
+    public float FloatField = 0f;
+    public List<int> ArrayField = [0, 1, 2, 3];
+    public DummyEnum EnumField = DummyEnum.DummyVal0;
+}
+
+/// <summary>
 /// Dummy prototype to show in the design view/preview for Avalonia
 /// </summary>
-public sealed class DummyPrototype : IPrototype
+public sealed class DummyPrototype(string id) : DummyBase, IPrototype
 {
-    public string ID { get; } = "DummyPrototype";
+    public string ID { get; } = id;
+}
 
-    public int IntegerField = 0;
-    public bool BooleanField = true;
-    public string StringField = "StringField";
-    public float FloatField = 0f;
-    public DummyEnum EnumField = DummyEnum.DummyVal0;
-    public List<int> ArrayField = [0, 1, 2, 3];
+/// <summary>
+/// Another kind of prototype for design view/preview for Avalonia
+/// </summary>
+public sealed class DummyPrototype2(string id) : DummyBase, IPrototype
+{
+    public string ID { get; } = id;
 }

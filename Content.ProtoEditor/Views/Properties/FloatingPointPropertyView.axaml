@@ -1,13 +1,14 @@
 <UserControl
-    x:Class="Content.ProtoEditor.Views.Properties.StringPropertyView"
+    x:Class="Content.ProtoEditor.Views.Properties.FloatingPointPropertyView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
     xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
-    x:DataType="vmp:StringPropertyViewModel">
+    x:DataType="vmp:FloatingPointPropertyViewModel">
 
     <Grid ColumnDefinitions="Auto, *">
         <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
-        <TextBox Grid.Column="1" Height="20" HorizontalContentAlignment="Center" Text="{Binding Value, Mode=TwoWay}" />
+        <NumericUpDown Grid.Column="1" HorizontalContentAlignment="Center"
+                       Value="{Binding StringValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Increment="0.1" />
     </Grid>
 </UserControl>

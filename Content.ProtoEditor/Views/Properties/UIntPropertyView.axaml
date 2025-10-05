@@ -6,8 +6,9 @@
     xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
     x:DataType="vmp:UIntPropertyViewModel">
 
-    <StackPanel Orientation="Horizontal">
+    <Grid ColumnDefinitions="Auto, *">
         <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
-        <NumericUpDown Value="{Binding Value, Mode=TwoWay}" />
-    </StackPanel>
+        <NumericUpDown Grid.Column="1" FormatString="0" HorizontalContentAlignment="Center"
+                       Value="{Binding Value, Mode=TwoWay}" />
+    </Grid>
 </UserControl>

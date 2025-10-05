@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Content.ProtoEditor.Services;
 using Robust.Shared.Prototypes;
@@ -18,6 +20,9 @@ namespace Content.ProtoEditor.ViewModels.Properties;
 /// </summary>
 public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErrorInfo
 {
+    private static readonly Regex WordRegex =
+        new(@"([A-Z]+(?![a-z])|[A-Z][a-z]+|[0-9]+|[a-z]+)", RegexOptions.Compiled);
+
     /// <summary>
     /// Stored reference to the member (Field or Property) information on the Prototype.
     /// </summary>
@@ -46,6 +51,13 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
     /// </summary>
     [ObservableProperty]
     private string _name;
+
+    /// <summary>
+    /// Processed version of the name for use in UI viewing, turns "camelCase"
+    /// into "Camel Case".
+    /// </summary>
+    [ObservableProperty]
+    private string _uiName;
 
     /// <summary>
     /// Optional Tooltip for showing exact type information to the user when hovering
@@ -91,9 +103,41 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
     protected PropertyViewModel(MemberInfo info)
     {
         Name = GetName(info);
+        UiName = GetUIName(Name);
+        Tooltip.Add(Name);
+
         TypeCode = GetTypeCode(info);
         MemberInfo = info;
     }
+
+    private static string GetUIName(string name)
+    {
+        var words = WordRegex.Matches(name)
+            .Select(m => m.Value)
+            .ToArray();
+
+        var intermediate = string.Join(" ", words);
+
+        return string.Concat(
+            char.ToUpper(intermediate[0]).ToString(),
+            intermediate.Remove(0, 1));
+    }
+
+    public virtual void SetInheritedFields(List<InheritedFieldData> inheritedFields)
+    {
+        if (inheritedFields.Count == 0)
+            return;
+
+        var s = new StringBuilder();
+        foreach (var d in inheritedFields)
+        {
+            s.Append($"Inherits [{d.Value}] from [{d.Id}]\n");
+        }
+
+        InheritedFields = s.ToString();
+    }
+
+    public abstract void SaveToInstance(IPrototype instance);
 
     partial void OnIsNullableChanged(bool value)
     {
@@ -103,8 +147,6 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
         else
             Tooltip.Remove(nullTooltip);
     }
-
-    public abstract void SaveToInstance(IPrototype instance);
 
     protected void Save(IPrototype instance, object? value)
     {
@@ -144,19 +186,5 @@ public abstract partial class PropertyViewModel : ViewModelBase, INotifyDataErro
         }
 
         return info.Name;
-    }
-
-    public virtual void SetInheritedFields(List<InheritedFieldData> inheritedFields)
-    {
-        if (inheritedFields.Count == 0)
-            return;
-
-        var s = new StringBuilder();
-        foreach (var d in inheritedFields)
-        {
-            s.Append($"Inherits [{d.Value}] from [{d.Id}]\n");
-        }
-
-        InheritedFields = s.ToString();
     }
 }

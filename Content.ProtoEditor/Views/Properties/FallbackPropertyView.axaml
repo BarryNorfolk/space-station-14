@@ -6,11 +6,16 @@
     xmlns:utilities="clr-namespace:Content.ProtoEditor.Views.Utilities"
     x:DataType="vmp:FallbackPropertyViewModel">
 
-    <StackPanel Orientation="Horizontal">
+    <Design.DataContext>
+        <vmp:FallbackPropertyViewModel />
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="Auto, *">
         <utilities:RemoveElementButton IsVisible="{Binding IsArrayElement}" />
         <TextBlock
-            Width="200"
+            Grid.Column="1"
+            VerticalAlignment="Center"
             IsEnabled="false"
             Text="{Binding Value}" />
-    </StackPanel>
+    </Grid>
 </UserControl>

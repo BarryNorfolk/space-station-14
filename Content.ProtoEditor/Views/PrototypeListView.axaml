@@ -3,44 +3,38 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:Content.ProtoEditor.ViewModels"
-    x:DataType="vm:PrototypeListViewModel">
+    x:DataType="vm:PrototypeListViewModel"
+    Design.Width="400"
+    Design.Height="500">
 
-    <Design.DataContext>
-        <vm:PrototypeListViewModel />
-    </Design.DataContext>
-
-    <Border
-        x:Name="protoList"
-        BorderBrush="Black"
-        BorderThickness="1">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBox
-                    Width="100"
-                    Margin="5,0,5,0"
-                    Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
-                    Watermark="Filter..." />
-                <ComboBox
-                    Width="200"
-                    DisplayMemberBinding="{Binding ShortName}"
-                    ItemsSource="{Binding Kinds}"
-                    SelectedItem="{Binding ListFilterKind, Mode=TwoWay}" />
-            </StackPanel>
-            <ListBox
-                Grid.Row="1"
-                Width="500"
-                ItemsSource="{Binding PrototypeViewModels}"
-                SelectedItem="{Binding SelectedPrototype, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="vm:PrototypeViewModel">
-                        <TextBlock Padding="0,5,0,5" Text="{Binding Id}" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+    <Grid RowDefinitions="50,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*, *"
+              Margin="5,00">
+            <TextBox
+                Grid.Column="0"
+                Margin="5 0"
+                Height="30"
+                HorizontalContentAlignment="Center"
+                Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
+                Watermark="Filter..." />
+            <ComboBox
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                DisplayMemberBinding="{Binding ShortName}"
+                ItemsSource="{Binding Kinds}"
+                SelectedItem="{Binding ListFilterKind, Mode=TwoWay}" />
         </Grid>
-    </Border>
+        <ListBox
+            Grid.Row="1"
+            ItemsSource="{Binding PrototypeViewModels}"
+            SelectedItem="{Binding SelectedPrototype, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:PrototypeViewModel">
+                    <TextBlock Padding="0,5" Text="{Binding Id}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
 </UserControl>
