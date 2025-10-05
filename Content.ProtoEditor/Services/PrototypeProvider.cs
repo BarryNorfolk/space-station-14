@@ -13,7 +13,7 @@ namespace Content.ProtoEditor.Services;
 /// <summary>
 /// Provides access to Prototypes and their kinds, loaded from the prototype manager.
 /// </summary>
-public sealed class PrototypeProvider
+public sealed class PrototypeProvider : IPrototypeProvider
 {
     /// <summary>
     /// Internal Assembly provider that gives access to the actual PrototypeManager
@@ -65,36 +65,50 @@ public sealed class PrototypeProvider
         Initialization = _worker.RunAsync(LoadPrototypes);
     }
 
-    /// <summary>
-    /// Exposes the initialization task so that other async tasks may await on it.
-    /// </summary>
     public Task Initialization { get; private set; }
 
-    /// <summary>
-    /// Gets the current cache of Prototypes.
-    /// </summary>
-    /// <returns>SourceCache for all loaded prototypes.</returns>
     public SourceCache<PrototypeViewModel, int> GetPrototypeModels()
     {
         return _prototypes;
     }
 
-    /// <summary>
-    /// Tries to resolve a prototype ID to an existing, loaded, view model.
-    /// </summary>
-    /// <param name="id">The prototype ID to search for.</param>
-    /// <returns>The found view model, otherwise null.</returns>
     public Optional<PrototypeViewModel> GetPrototypeModel(string id)
     {
         return _prototypes.Lookup(id.GetHashCode());
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns>List of all loaded prototype Kinds</returns>
     public List<PrototypeKind> GetKinds()
     {
         return _kinds;
+    }
+
+    public async Task ForceReload()
+    {
+        var modified = new Dictionary<Type, HashSet<string>>();
+        _prototypeManager.ReloadPrototypes(modified);
+        _kinds.Clear();
+
+        await _worker.RunAsync(LoadPrototypes);
+    }
+
+    public Dictionary<string, List<InheritedFieldData>> GetBaseFields(PrototypeViewModel prototype)
+    {
+        return _prototypeManager.EnumerateBaseFields(prototype.Kind, prototype.Id, _ignoredInheritedFields);
+    }
+
+    public string GetParents(PrototypeViewModel prototype)
+    {
+        if (!prototype.Kind.IsAssignableTo(typeof(IInheritingPrototype)))
+            return "Not inherited";
+
+        var f = new StringBuilder();
+        foreach (var parentId in _prototypeManager.EnumerateAllParents(prototype.Kind, prototype.Id))
+        {
+            f.Append(parentId);
+            f.Append(',');
+        }
+
+        return f.ToString();
     }
 
     /// <summary>
@@ -116,44 +130,5 @@ public sealed class PrototypeProvider
         _kinds.Sort((lhs, rhs) => lhs.ShortName.CompareTo(rhs.ShortName));
 
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Forces a reload of all prototypes and their kinds.
-    /// </summary>
-    public async Task ForceReload()
-    {
-        var modified = new Dictionary<Type, HashSet<string>>();
-        _prototypeManager.ReloadPrototypes(modified);
-        _kinds.Clear();
-
-        await _worker.RunAsync(LoadPrototypes);
-    }
-
-    public Dictionary<string, List<InheritedFieldData>> GetBaseFields(PrototypeViewModel prototype)
-    {
-        return _prototypeManager.EnumerateBaseFields(prototype.Kind, prototype.Id, _ignoredInheritedFields);
-    }
-
-    /*
-        Ok so, the abstracts DON'T Get any information in the
-        EnumerateAllParents because they don't exist in the prototype
-        mananger. That's weird I guess.
-        Investigate how the inheritance works with merging properties
-        from abstract prototypes that don't actually have anything.
-    */
-    public string GetParents(PrototypeViewModel prototype)
-    {
-        if (!prototype.Kind.IsAssignableTo(typeof(IInheritingPrototype)))
-            return "Not inherited";
-
-        var f = new StringBuilder();
-        foreach (var parentId in _prototypeManager.EnumerateAllParents(prototype.Kind, prototype.Id))
-        {
-            f.Append(parentId);
-            f.Append(',');
-        }
-
-        return f.ToString();
     }
 }

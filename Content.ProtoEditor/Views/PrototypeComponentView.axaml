@@ -3,11 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:Content.ProtoEditor.ViewModels"
-    x:DataType="vm:PrototypeComponentViewModel">
-
-    <Design.DataContext>
-        <vm:PrototypeComponentViewModel />
-    </Design.DataContext>
+    x:DataType="vm:PrototypeComponentViewModel"
+    Design.Height="500"
+    Design.Width="800">
 
     <Border
         x:Name="ProtoList"
@@ -18,6 +16,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Button Command="{Binding SaveChangesCommand}" Content="Save Changes" />
                     <TextBlock Text="{Binding SelectedName}" />
+                    <TextBlock Text="{Binding SelectedKind}" />
                 </StackPanel>
                 <TextBlock Text="{Binding Parents}" />
                 <ItemsControl ItemsSource="{Binding Properties}">

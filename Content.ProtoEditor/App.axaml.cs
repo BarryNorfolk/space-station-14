@@ -25,7 +25,7 @@ public sealed class App : Application
         var collection = new ServiceCollection();
         collection.AddSingleton<DependencyProvider>();
         collection.AddSingleton<BackgroundWorkerProvider>();
-        collection.AddSingleton<PrototypeProvider>();
+        collection.AddSingleton<IPrototypeProvider, PrototypeProvider>();
         collection.AddSingleton<PropertyViewModelFactory>();
 
         collection.AddSingleton<MainWindowViewModel>();

@@ -8,6 +8,7 @@ using Content.ProtoEditor.Messages;
 using Content.ProtoEditor.Services;
 using Content.ProtoEditor.ViewModels.Properties;
 using ReactiveUI;
+using Robust.Shared.Analyzers;
 using Robust.Shared.Utility;
 
 namespace Content.ProtoEditor.ViewModels;
@@ -28,7 +29,7 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
     /// </summary>
-    private readonly PrototypeProvider _prototypeProvider;
+    private readonly IPrototypeProvider _prototypeProvider;
 
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
@@ -41,9 +42,12 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
     [ObservableProperty]
     private string _selectedName = "none";
 
+    [ObservableProperty]
+    private string _selectedKind = "none";
+
     private PrototypeViewModel? _selectedPrototype;
 
-    public PrototypeComponentViewModel(PrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
+    public PrototypeComponentViewModel(IPrototypeProvider prototypeProvider, PropertyViewModelFactory viewModelFactory)
     {
         _prototypeProvider = prototypeProvider;
         _viewModelFactory = viewModelFactory;
@@ -88,10 +92,16 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
     private void OnPrototypeSelected(PrototypeViewModel? prototype)
     {
+        SelectPrototype(prototype);
+    }
+
+    public void SelectPrototype(PrototypeViewModel? prototype)
+    {
         Properties.Clear();
         if (prototype == null)
         {
             SelectedName = "None";
+            SelectedKind = "None";
             _selectedPrototype = null;
             return;
         }
@@ -104,6 +114,7 @@ public sealed partial class PrototypeComponentViewModel : ViewModelBase
 
         _selectedPrototype = prototype;
         SelectedName = prototype.Id;
+        SelectedKind = prototype.Kind.ToString();
         Parents = _prototypeProvider.GetParents(prototype);
         var baseFields = _prototypeProvider.GetBaseFields(prototype);
 

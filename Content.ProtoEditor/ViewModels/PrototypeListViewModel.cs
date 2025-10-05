@@ -31,7 +31,7 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
     /// </summary>
-    private readonly PrototypeProvider _prototypeProvider;
+    private readonly IPrototypeProvider _prototypeProvider;
 
     /// <summary>
     /// Collection that has been filtered/sorted and connected to the list of available prototypes
@@ -57,7 +57,7 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     [ObservableProperty]
     private PrototypeViewModel? _selectedPrototype;
 
-    public PrototypeListViewModel(PrototypeProvider prototypeProvider)
+    public PrototypeListViewModel(IPrototypeProvider prototypeProvider)
     {
         _prototypeProvider = prototypeProvider;
 
