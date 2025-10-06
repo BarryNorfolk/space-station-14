@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Content.ProtoEditor.Models;
 using Content.ProtoEditor.ViewModels;
 using DynamicData;
 using DynamicData.Kernel;
@@ -15,11 +15,6 @@ namespace Content.ProtoEditor.Services;
 /// </summary>
 public sealed class PrototypeProvider : IPrototypeProvider
 {
-    /// <summary>
-    /// Internal Assembly provider that gives access to the actual PrototypeManager
-    /// </summary>
-    private readonly DependencyProvider _assembly;
-
     /// <summary>
     /// List of field names from mapping nodes to ignore when enumerating inherited fields
     /// from parent prototypes.
@@ -35,17 +30,12 @@ public sealed class PrototypeProvider : IPrototypeProvider
     /// List of all the "Kinds" (or types) of Prototypes, wrapped in a PrototypeKind class
     /// for easier handling within UI code.
     /// </summary>
-    private readonly List<PrototypeKind> _kinds = [];
+    private readonly List<PrototypeKindViewModel> _kinds = [];
 
     /// <summary>
     /// Stored resolution of the Prototype manager from the Server assembly.
     /// </summary>
     private readonly EditorPrototypeManager _prototypeManager;
-
-    /// <summary>
-    /// Stored Prototypes wrapped in a ViewModel, ready for use in Views/UI.
-    /// </summary>
-    private readonly SourceCache<PrototypeViewModel, int> _prototypes = new(x => x.Id.GetHashCode());
 
     /// <summary>
     /// The worker thread with all IoC dependencies initialized on it, used to background
@@ -55,7 +45,6 @@ public sealed class PrototypeProvider : IPrototypeProvider
 
     public PrototypeProvider(DependencyProvider assembly, BackgroundWorkerProvider worker)
     {
-        _assembly = assembly;
         _worker = worker;
 
         _prototypeManager = (EditorPrototypeManager)assembly.Resolve<IPrototypeManager>();
@@ -67,17 +56,18 @@ public sealed class PrototypeProvider : IPrototypeProvider
 
     public Task Initialization { get; private set; }
 
-    public SourceCache<PrototypeViewModel, int> GetPrototypeModels()
-    {
-        return _prototypes;
-    }
-
     public Optional<PrototypeViewModel> GetPrototypeModel(string id)
     {
-        return _prototypes.Lookup(id.GetHashCode());
+        foreach (var prototype in _kinds.Select(kind => kind.Prototypes.Lookup(id.GetHashCode()))
+                     .Where(prototype => prototype.HasValue))
+        {
+            return prototype;
+        }
+
+        return Optional<PrototypeViewModel>.None;
     }
 
-    public List<PrototypeKind> GetKinds()
+    public List<PrototypeKindViewModel> GetKinds()
     {
         return _kinds;
     }
@@ -120,11 +110,13 @@ public sealed class PrototypeProvider : IPrototypeProvider
 
         foreach (var kind in _prototypeManager.EnumeratePrototypeKinds())
         {
-            _kinds.Add(new PrototypeKind(kind));
+            var kindVm = new PrototypeKindViewModel(kind);
             foreach (var prototype in _prototypeManager.EnumeratePrototypes(kind))
             {
-                _prototypes.AddOrUpdate(new PrototypeViewModel(prototype, kind));
+                kindVm.Prototypes.AddOrUpdate(new PrototypeViewModel(prototype, kind));
             }
+
+            _kinds.Add(kindVm);
         }
 
         _kinds.Sort((lhs, rhs) => lhs.ShortName.CompareTo(rhs.ShortName));

@@ -1,13 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Content.ProtoEditor.Messages;
-using Content.ProtoEditor.Models;
 using Content.ProtoEditor.Services;
-using DynamicData;
-using DynamicData.Binding;
 using ReactiveUI;
 using Robust.Shared.Prototypes;
 
@@ -16,34 +12,9 @@ namespace Content.ProtoEditor.ViewModels;
 public sealed partial class PrototypeListViewModel : ViewModelBase
 {
     /// <summary>
-    /// Special dummy type for putting at the top of the kind selection combo box,
-    /// so that people can filter on "All"
-    /// TODO: Better naming of the actual type
-    /// </summary>
-    private readonly PrototypeKind _defaultAll = new(typeof(All));
-
-    /// <summary>
-    /// Used to enable dynamic filtering of the source prototype list.
-    /// </summary>
-    private readonly BehaviorSubject<Func<PrototypeViewModel, bool>> _filterSubject =
-        new(p => true);
-
-    /// <summary>
     /// Stored reference to the PrototypeManager provided by the ProtoEditor.
     /// </summary>
     private readonly IPrototypeProvider _prototypeProvider;
-
-    /// <summary>
-    /// Collection that has been filtered/sorted and connected to the list of available prototypes
-    /// in the PrototypeManager.
-    /// </summary>
-    private readonly ReadOnlyObservableCollection<PrototypeViewModel> _prototypeViewModels;
-
-    /// <summary>
-    /// The 'Kind' to use for filtering prototypes in the list view
-    /// </summary>
-    [ObservableProperty]
-    private PrototypeKind _listFilterKind;
 
     /// <summary>
     /// String to use for filtering prototypes in the list view.
@@ -61,30 +32,17 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     {
         _prototypeProvider = prototypeProvider;
 
-        // This isn't populated yet but we can still bind to the "empty" cache,
-        // which will be loaded later on once the async initialization is complete.
-        _prototypeProvider.GetPrototypeModels()
-            .Connect()
-            .Sort(SortExpressionComparer<PrototypeViewModel>.Descending(t => t.Id)) //TODO: Make this actually work?
-            .Filter(_filterSubject)
-            .Bind(out _prototypeViewModels)
-            .Subscribe();
-
-        _listFilterKind = _defaultAll;
-
         MessageBus.Current.Listen<PrototypeIdSelectedMessage>()
             .Subscribe(x => OnPrototypeIdSelected(x.ProtoId));
 
         Initialization = InitializeAsync();
     }
 
-    public ReadOnlyObservableCollection<PrototypeViewModel> PrototypeViewModels => _prototypeViewModels;
-
     /// <summary>
     /// List of all known "Kinds" of prototypes, updated as the prototype manager reloads and
     /// can be used for filtering.
     /// </summary>
-    public ObservableCollection<PrototypeKind> Kinds { get; set; } = [];
+    public ObservableCollection<PrototypeKindViewModel> Kinds { get; set; } = [];
 
     /// <summary>
     /// Task for handling Initialization of this model view.
@@ -99,17 +57,10 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     /// <param name="value">New value of the filter text.</param>
     partial void OnListFilterTextChanged(string value)
     {
-        _filterSubject.OnNext(FilterPrototypes);
-    }
-
-    /// <summary>
-    /// Handles when the SelectedItem for the possible PrototypeKinds changes and
-    /// causes a re-filtering of the visible list of prototypes.
-    /// </summary>
-    /// <param name="value">Selected index of the combobox.</param>
-    partial void OnListFilterKindChanged(PrototypeKind value)
-    {
-        _filterSubject.OnNext(FilterPrototypes);
+        foreach (var kind in Kinds)
+        {
+            kind.FilterSubject.OnNext(FilterPrototypes);
+        }
     }
 
     /// <summary>
@@ -142,10 +93,6 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
     /// <returns>True if the prototype should be visible, otherwise false.</returns>
     private bool FilterPrototypes(PrototypeViewModel prototype)
     {
-        // First check whether this prototype is even in the correct category
-        if (!ListFilterKind.Equals(_defaultAll) && ListFilterKind.Kind != prototype.Kind)
-            return false;
-
         // Then perform a string check against the ID of the prototype
         // TODO: Possibly improve fuzzy finding and string validation
         if (!string.IsNullOrWhiteSpace(ListFilterText) && !prototype.Id.Contains(ListFilterText))
@@ -164,7 +111,6 @@ public sealed partial class PrototypeListViewModel : ViewModelBase
 
         // Reload the kinds, while also making sure All is first
         Kinds.Clear();
-        Kinds.Add(_defaultAll);
         foreach (var kind in _prototypeProvider.GetKinds())
         {
             Kinds.Add(kind);

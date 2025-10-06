@@ -8,21 +8,14 @@
     Design.Width="600">
 
     <DockPanel LastChildFill="True">
-        <TextBlock DockPanel.Dock="Top" Margin=" 5">
-            <TextBlock.Text>
-                <MultiBinding StringFormat=' {0} [{1}]'>
-                    <Binding Path="SelectedName" />
-                    <Binding Path="SelectedKind" />
-                </MultiBinding>
-            </TextBlock.Text>
-        </TextBlock>
+        <TextBlock DockPanel.Dock="Top" Margin=" 5" Text="{Binding SelectedKind}" HorizontalAlignment="Center" />
         <Button Margin="5" DockPanel.Dock="Bottom" Command="{Binding SaveChangesCommand}" Content="Save Changes" />
         <ScrollViewer>
             <StackPanel Orientation="Vertical">
                 <ItemsControl ItemsSource="{Binding Properties}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="175,35,35,*" Margin="0 1 0 2">
+                            <Grid ColumnDefinitions="200,35,35,*" Margin="0 1 0 2">
                                 <TextBlock
                                     Grid.Column="0"
                                     Margin="0,8,2,0"

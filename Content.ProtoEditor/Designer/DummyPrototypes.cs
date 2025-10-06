@@ -40,7 +40,8 @@ public abstract class DummyBase
 /// <summary>
 /// Dummy prototype to show in the design view/preview for Avalonia
 /// </summary>
-public sealed class DummyPrototype(string id) : DummyBase, IPrototype
+/// <param name="id">The ID for this instance of the prototype.</param>
+public sealed class PlanetPrototypes(string id) : DummyBase, IPrototype
 {
     public string ID { get; } = id;
 }
@@ -48,7 +49,17 @@ public sealed class DummyPrototype(string id) : DummyBase, IPrototype
 /// <summary>
 /// Another kind of prototype for design view/preview for Avalonia
 /// </summary>
-public sealed class DummyPrototype2(string id) : DummyBase, IPrototype
+/// <param name="id">The ID for this instance of the prototype.</param>
+public sealed class DwarfsPrototype(string id) : DummyBase, IPrototype
+{
+    public string ID { get; } = id;
+}
+
+/// <summary>
+/// A prototype kind that should not have any instances attached to it.
+/// </summary>
+/// <param name="id">The ID for this instance of the prototype.</param>
+public sealed class EmptyPrototype(string id) : DummyBase, IPrototype
 {
     public string ID { get; } = id;
 }

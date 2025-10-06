@@ -8,33 +8,34 @@
     Design.Height="500">
 
     <Grid RowDefinitions="50,*">
-        <Grid Grid.Row="0" ColumnDefinitions="*, *"
-              Margin="5,00">
-            <TextBox
-                Grid.Column="0"
-                Margin="5 0"
-                Height="30"
-                HorizontalContentAlignment="Center"
-                Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
-                Watermark="Filter..." />
-            <ComboBox
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center"
-                DisplayMemberBinding="{Binding ShortName}"
-                ItemsSource="{Binding Kinds}"
-                SelectedItem="{Binding ListFilterKind, Mode=TwoWay}" />
-        </Grid>
-        <ListBox
+        <TextBox
+            Grid.Row="0"
+            Margin="5 0"
+            Height="30"
+            HorizontalContentAlignment="Center"
+            Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
+            Watermark="Filter..." />
+        <TreeView
             Grid.Row="1"
-            ItemsSource="{Binding PrototypeViewModels}"
+            ItemsSource="{Binding Kinds}"
             SelectedItem="{Binding SelectedPrototype, Mode=TwoWay}">
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="vm:PrototypeViewModel">
+            <TreeView.DataTemplates>
+                <TreeDataTemplate
+                    DataType="vm:PrototypeKindViewModel"
+                    ItemsSource="{Binding FilteredPrototypes}">
+                    <TextBlock Padding="0,5">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="[{0}] {1}">
+                                <Binding Path="FilteredPrototypes.Count" />
+                                <Binding Path="ShortName" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </TreeDataTemplate>
+                <TreeDataTemplate DataType="vm:PrototypeViewModel">
                     <TextBlock Padding="0,5" Text="{Binding Id}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                </TreeDataTemplate>
+            </TreeView.DataTemplates>
+        </TreeView>
     </Grid>
 </UserControl>
