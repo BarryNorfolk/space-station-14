@@ -112,7 +112,7 @@ public sealed class PropertyViewModelFactory
                 return vm;
             }
 
-            if (generic == typeof(List<>))
+            if (typeof(IList).IsAssignableFrom(type))
             {
                 var genericTypes = type.GetGenericArguments();
                 if (genericTypes.Length == 0)
