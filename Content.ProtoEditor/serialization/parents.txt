@@ -1,0 +1,61 @@
+# Prototype Inheritance
+
+So some prototypes can inherit from multiple parents, taking their components/properties and having
+them applied to the prototype.
+How this works is a slight mystery because of how complex a lot of the code is, so a lot of splunking
+to figure out what and how this works.
+
+During PrototypeManager::ResolveResults, which is done after all the prototypes have been loaded,
+we kick off a bunch of tasks for inheritance under PrototypeManager::PushKindInheritance.
+
+In turn, this then looks over the tree of all the inherited prototype IDs, this is per Kind of entity,
+so the EntityPrototype gets its own tree, LatheProperties another, etc.
+
+All of this is then handled in PrototypeManager::PushKindInheritance::ProcessItem and is kicked off
+for each root node in the graph.
+
+I'm not sure but I think the root nodes are effectively prototypes with zero (concrete) parents.
+This does mean that things like `ConveyerBeltAssembly` can totally be a child of `BaseItem`, but
+because the latter is an abstract type it doesn't count as a "root" node.
+
+This does make me question something though, how does the abstract there populate the node if its
+not a root node?
+
+This ProcessItem is recursive and starts from root nodes and goes to the children of that root node,
+i.e. The prototypes that inherit from that particular node, and so on.
+
+This means that we basically do no processing at the root node specifically, and only really do something
+when we have a parent to pull from.
+
+---
+
+When processing the inheritance, we have a dictionary of results using `InheritancePushDatum`.
+This is initially populated with details from the all the kinds, including abstract.
+This answers the question I had before about how this works, the abstracts ARE root nodes in this
+graph as well, they have to be.
+
+In the example of SatiationIcons (a pretty simple and flat inheritance), both the `HungerIcon` and
+`ThirstIcon` are root nodes,
+
+So we populate these Results with the MappingData for each prototype we've encountered for that
+particular kind.
+
+If the child has multiple parents then we seem to basically just batch up the parent slightly,
+I'll need to figure out which parent wins out but I'm assuming it's last one applies changes.
+
+---
+
+Ok, so rouhgly we now know where the data lies, it's in the KindData.RawResults and we can check whether
+there is inheritance through the Inheritance field on the KindData.
+
+So the question is, how do I get access to that data, and can I maybe run a similar system here.
+
+Kind data is something specifically I will never have access to unless I write my own PrototypeManager.
+So I'll have to look at the ServerPrototypeManager and add my own, which also means I'll have to start
+breaking up the IoC stuff NOW in order to make sure I can insert things when I need to.
+
+At that point, I will have some kind of ability to handle the prototype manager's internals and get
+access to things like the KindData and the stuff inside.
+
+The server version doesn't really do much at the moment anyway, so that's good.
+We don't even need any of its additional dependencies either.

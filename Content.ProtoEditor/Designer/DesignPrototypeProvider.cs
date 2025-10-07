@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Content.ProtoEditor.ViewModels;
 using DynamicData;
 using DynamicData.Kernel;
+using Robust.Shared.GameObjects;
+using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.Markdown.Mapping;
 
 namespace Content.ProtoEditor.Designer;
 
@@ -46,6 +49,16 @@ public sealed class DesignPrototypeProvider : IPrototypeProvider
         dwarfs.Prototypes.AddOrUpdate(new PrototypeViewModel(new DwarfsPrototype("Eris"), typeof(DwarfsPrototype)));
         dwarfs.Prototypes.AddOrUpdate(new PrototypeViewModel(new DwarfsPrototype("MakeMake"), typeof(DwarfsPrototype)));
         _kinds.Add(dwarfs);
+
+        var details = new PrototypeKindViewModel(typeof(DetailPrototype));
+        var componentDetails = new DetailPrototype("Components");
+        componentDetails.Components.Add("Transform",
+            new EntityPrototype.ComponentRegistryEntry(new TransformComponent(), new MappingDataNode()));
+        // And a metadata component too!
+        componentDetails.Components.Add("MetaData",
+            new EntityPrototype.ComponentRegistryEntry(new MetaDataComponent(), new MappingDataNode()));
+        details.Prototypes.AddOrUpdate(new PrototypeViewModel(componentDetails, typeof(DetailPrototype)));
+        _kinds.Add(details);
     }
 
     /// <summary>

@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmp="using:Content.ProtoEditor.ViewModels.Properties"
+             Design.Width="300"
+             x:DataType="vmp:ComponentRegistryPropertyViewModel"
+             x:Class="Content.ProtoEditor.Views.Properties.ComponentRegistryPropertyView">
+    <Grid ColumnDefinitions="*, auto" Margin="5 0">
+        <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                   Text="{Binding NumComponents, StringFormat='[{0}] Components'}" />
+        <Button Grid.Column="1" Content="Open in details" Command="{Binding ShowDetailsCommand}" />
+    </Grid>
+</UserControl>

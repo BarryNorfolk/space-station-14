@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Robust.Shared.Prototypes;
 
 namespace Content.ProtoEditor.Designer;
@@ -34,11 +35,12 @@ public abstract class DummyBase
     public string? NullableStringField = null;
     public float FloatField = 0f;
     public List<int> ArrayField = [0, 1, 2, 3];
+    public ImmutableList<string> ImmutableField = ["Hi", "To", "You"];
     public DummyEnum EnumField = DummyEnum.DummyVal0;
 }
 
 /// <summary>
-/// Dummy prototype to show in the design view/preview for Avalonia
+/// A simple prototype kind to show in the design view/preview for Avalonia
 /// </summary>
 /// <param name="id">The ID for this instance of the prototype.</param>
 public sealed class PlanetPrototypes(string id) : DummyBase, IPrototype
@@ -47,12 +49,24 @@ public sealed class PlanetPrototypes(string id) : DummyBase, IPrototype
 }
 
 /// <summary>
-/// Another kind of prototype for design view/preview for Avalonia
+/// A second, simple, prototype kind for design view/preview for Avalonia
 /// </summary>
 /// <param name="id">The ID for this instance of the prototype.</param>
 public sealed class DwarfsPrototype(string id) : DummyBase, IPrototype
 {
     public string ID { get; } = id;
+}
+
+/// <summary>
+/// A prototype kind for showing any controls that require the detail view,
+/// such as components.
+/// </summary>
+/// <param name="id"></param>
+public sealed class DetailPrototype(string id) : IPrototype
+{
+    public string ID { get; } = id;
+
+    public ComponentRegistry Components { get; } = new();
 }
 
 /// <summary>

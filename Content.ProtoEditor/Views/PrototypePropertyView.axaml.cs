@@ -18,7 +18,7 @@ public sealed partial class PrototypePropertyView : UserControl
         {
             var prototypes = new DesignPrototypeProvider();
             var vm = new PrototypePropertyViewModel(prototypes, new PropertyViewModelFactory());
-            vm.SelectPrototype(prototypes.GetDummyPrototype());
+            vm.SelectPrototype(prototypes.GetPrototypeModel("Components").Value);
             Design.SetDataContext(this, vm);
         }
         else

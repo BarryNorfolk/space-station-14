@@ -1,0 +1,91 @@
+# ProtoEditor
+
+Intent is to be a decent looking application for managing prototypes and being able to see all the different
+components, and default values, for a particular entity.
+
+We can break this down into a set of functionality we would like to have, so we can more work on it over a long time.
+
+## Plan
+
+### Stage 1 - Loading Prototypes
+
+The first step is to figure out how to load ALL the prototypes currently available in the codebase, and we can look
+to the YAMLEditor project for inspiration since it does the same thing.
+Albeit in a way that seems to be setup for "IntegrationTests" rather than anything that's more generalised.
+
+Even if it's "IntegrationTest" related, it's likely to help us produce the right sort of list, so worst case
+we can probably rely on it for the moment in this stage of figuring out what/how to get things to work.
+
+### Stage 2 - Visualising Prototypes
+
+Now we have a complete list of ALL the prototypes available across the codebase, we probably want to start showing it
+to users.
+The only question is "how" but this is the stage for figuring that out.
+Alphabetical? Searching? Fuzzy finding? Broken down per file? Directory structure? Etc.
+
+### Stage 3 - Editing Prototypes
+
+Once we can see the prototypes, we should have the ability to alter the component data and then save it to disk.
+Addition of components, should be doable as well.
+
+
+## Impl Fun
+
+### Avalonia
+
+Seems like there's an Avalonia reference in RobustToolbox at the moment, so you can't use the (very different) version.
+It seems to come directly from Robust toolbox and has a specifc reason in mind for usage with enabling Rider to support avalonia.
+
+I think I'd need to talk to someone in the contrib channel to understand whether there's something I can do here.
+For the moment, to enable to move forward, I can probably just remove the reference to the dummy Avalonia project for the moment.
+Doing so will probably remove the assembly from the Client/Server there, so it's likely to stop rider working in that
+project.
+
+I don't know why the YAMLEditor project now produces all the Avalonia assemblies in there, which is weird.
+
+### Internals
+
+So I'd like to reuse as much as possible from Robust so I don't reinvent the wheel, and keep things relatively
+the same as what the Game would end up doing.
+However, I seem to be at a bit of a problem as I can't directly setup dependency mappings as they are ONLY in the internals
+of the robust toolbox.
+This makes complete sense from an encap pov but sucks for me, I have to grab _all_ the assemblies and then use the instance
+of that assembly (the server one) in order to actually get at something like the resource manager.
+
+I think I'll always need to load/find the assemblies so it's not that large of a problem?
+To get to stage 2/3 I need to have the ability to load basically all the components of the game that might exist...
+
+But thinking about it, components in prototypes need everything to be in shared, else you can't have the server or client load it.
+So I MIGHT just need the server or client assembly in order to manage the prototypes, not both.
+
+### Prototype filepaths
+
+We don't have any sense of where the prototypes come from by the time they are interred into the prototype manager.
+We probably want to be able to update the YAML/Text file that represents this thing at some point so it's
+important that we are able to map a prototype back to its representative file.
+To do this we can either:
+- Build the list of prototypes ourselves and keep a duplicate listing.
+- Add the file path to the IPrototype, maybe under certain conditions.
+  - What I don't like about this one is that the main game is the affected by having an additional N strings.
+  - It would be better if the assembly could be loaded with a particular config in mind that enables this field
+    but for the main game it does nothing and resolves to nothing.
+
+For the moment, I'm looking to embiggen the IPrototype :/ It sucks but I don't know of a better way and I'd
+like to make headway while I still have energy rather than spend time thinking about the best architecture for it.
+
+Turns out that the Prototype interface, or just the C# interface type, cannot have ANYthing in it and must be
+overriden which is... a bit naff.
+
+### Comments and You
+
+If we were to naively just start writing the Yaml from memory to disk, we’d nuke all the comments and just have bare (but uni-formally formatted) text. Comments provide some load-bearing structure for forks to be able to turn remove components, override values but maintain their originals close by, and also just good anchor points for merge conflicts.
+
+The most ideal prototype editor, in my eyes, would need to be able to handle keeping comments as-is, loading them into memory and dumping them out in the right places to maintain parity.
+
+We might be able to work around it a little by having the yaml dumped out to temporary file, or even as a pop-up for the user to copy and paste into the actual file. Then they could take that and add/update any comments as required. Ultimately though that falls short of the “This is a cool prototype editor that handles things for me” goal in my head.
+
+### Metadata
+
+One problem is figuring out how to work with and store the metadata for a prototype and any inheritance that it has. Where the prototype came from is a somewhat easy solve, but then noting that Component A for this prototype comes from Parent A, which in turn inherited it from Parent B, is a bit more annoying to solve.
+
+Reasoning for this being important is that we don’t, I imagine, want to have the whole object be stored directly as Yaml. We need to be able to ignore writing properties and fields where they are the default, as well as where they not directly specified in the child Yaml.
