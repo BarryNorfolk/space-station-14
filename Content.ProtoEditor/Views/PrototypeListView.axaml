@@ -15,6 +15,10 @@
             HorizontalContentAlignment="Center"
             Text="{Binding ListFilterText, UpdateSourceTrigger=PropertyChanged}"
             Watermark="Filter..." />
+        <!--
+            Apparently Treeview is a horribly slow thing when we have so many elements in there, so...
+            TODO: Swap this out for a listbox again, with expanders and such.
+        -->
         <TreeView
             Grid.Row="1"
             ItemsSource="{Binding Kinds}"
